@@ -11,6 +11,7 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
 import loginUser from "./auth.service";
+import './Authentication.css';
 
 function Authentication() {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ function Authentication() {
     try {
       const response = await loginUser(email, passwordLogin);
       localStorage.setItem("token", response.accessToken);
-      navigate("/home");
+      navigate('/home', { state: { email: email } });
       handleCloseModal();
     } catch (error) {
       setInvalidData("Invalid email or password.");

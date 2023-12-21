@@ -1,0 +1,9 @@
+.auth-card {
+    width: 700px;
+    padding: 4rem;
+    background-image: url("./assets/container.jpeg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    justify-content: center; 
+    align-content: center; 
+  }

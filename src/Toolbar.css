@@ -1,0 +1,44 @@
+.toolbar {
+    background-color:darkslateblue; 
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+  }
+  
+  .logo {
+    font-size: 24px;
+    font-weight: bold;
+    align-items: start;
+    font-family:'Courier New', Courier, monospace;
+  }
+
+#dropdown-projects{
+    background-color: gray;
+    opacity: 50%;
+    color: black;
+    font-family: fantasy;
+    width: 20vw;
+    
+  }
+  
+  .add-bug-btn :focus {
+    font-family: fantasy;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+  }
+  
+  .user-icon {
+    background-color:cadetblue;
+    padding: 10px;
+    margin-left: 10px;
+    border-radius: 50%;
+  }
+  .dropdownOptions{
+    width: 20vw;
+    font-family: fantasy;
+  }
