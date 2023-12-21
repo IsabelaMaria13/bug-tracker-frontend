@@ -1,0 +1,10 @@
+.floating-card {
+    background-color:azure; 
+    border: none; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+  }
+  .dashboardCard{
+    background-color: grey;
+    opacity: 60%;
+    margin-top: 20px;
+  }
