@@ -14,13 +14,16 @@
     font-family:'Courier New', Courier, monospace;
   }
 
-#dropdown-projects{
+#dropdown-bugs{
     background-color: gray;
     opacity: 50%;
     color: black;
     font-family: fantasy;
     width: 20vw;
     
+  }
+  #dropdown-priority{
+    background-color: black;    
   }
   
   .add-bug-btn :focus {
@@ -42,3 +45,16 @@
     width: 20vw;
     font-family: fantasy;
   }
+  .model-title{
+    font-family: fantasy;
+    font-weight: bold;
+    font-size: 26px;
+  }
+  .second-line-add-bug{
+    align-items: end;
+  }
+  /* .modal-background{
+    background-image: url("./assets/container.jpeg");
+    background-repeat: no-repeat;
+    background-size: cover;
+  } */

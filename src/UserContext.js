@@ -1,20 +1,20 @@
-import React, {createContext, useState, useContext} from 'react';
+import React, { createContext, useState } from 'react';
 
-// folosim ca sa transmitem informatii in aplicatie la mai multe componente
+const UserContext = createContext();
 
-const UserContext = createContext(null);
-export const useUserContext = () => useContext(UserContext);
-export const UserProvider = ({children}) => {
-    const [projects, setProjects] = useState(['']);
+export const UserProvider = ({ children }) => {
+    const [bugs, setBugs] = useState([]);
 
-    const addProject = projectName => {
-        setProjects(projects => [...projects, projectName]);
+    const addBug = (newBug) => {
+        const bugWithStatus = { ...newBug, status: "TO DO" }; // Adaugă statusul "TO DO"
+        setBugs(currentBugs => [...currentBugs, bugWithStatus]);
     };
 
     return (
-        <UserContext.Provider value={{projects, addProject}}>
+        <UserContext.Provider value={{ bugs, addBug }}>
             {children}
         </UserContext.Provider>
-
     );
 };
+
+export const useUserContext = () => React.useContext(UserContext);

@@ -8,3 +8,12 @@
     opacity: 60%;
     margin-top: 20px;
   }
+  .background{
+    background-image: url("./assets/container.jpeg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-repeat: no-repeat;
+    position: relative;
+    width: 110vw;
+    height: 50vw;
+  }
