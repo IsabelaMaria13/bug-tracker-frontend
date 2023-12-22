@@ -31,7 +31,7 @@ function Authentication() {
       setPasswordDoNotMatch("Passwords do not match.");
       return;
     } else {
-      // ruta spre alta pg
+      navigate('/register');
     }
   };
   const handleLoginSubmit = async (e) => {
@@ -46,10 +46,10 @@ function Authentication() {
     }
   };
   return (
-    <Container fluid className="bg-dark text-white p-5 background-container">
+    <Container fluid className="bg-dark text-white p-5 background-site">
       <Row className="justify-content-center">
         <Col md={6}>
-          <Card className="p-4">
+          <Card className="p-4 mx-auto">
             <Row>
               <Col md={6}>
                 <h3>Login</h3>
