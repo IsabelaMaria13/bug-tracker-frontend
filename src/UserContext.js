@@ -11,8 +11,16 @@ export const UserProvider = ({ children }) => {
         setBugs(currentBugs => [...currentBugs, bugWithStatusAndId]);
     };
 
+    const updateBug = (bugId, updatedDetails) => {
+        setBugs(currentBugs =>
+            currentBugs.map(bug =>
+                bug.id === bugId ? {...bug, ...updatedDetails}:bug
+            )
+        );
+    }
+
     return (
-        <UserContext.Provider value={{ bugs, addBug }}>
+        <UserContext.Provider value={{ bugs, addBug, updateBug }}>
             {children}
         </UserContext.Provider>
     );

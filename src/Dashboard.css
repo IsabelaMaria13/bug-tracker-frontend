@@ -1,19 +1,24 @@
 .floating-card {
-    background-color:azure; 
-    border: none; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-  }
-  .dashboardCard{
-    background-color: grey;
-    opacity: 60%;
-    margin-top: 20px;
-  }
-  .background{
-    background-image: url("./assets/container.jpeg");
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-repeat: no-repeat;
-    position: relative;
-    width: 110vw;
-    height: 50vw;
-  }
+  background-color:rgb(41, 149, 244);
+  color: white; 
+  border: none; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+.dashboardCard{
+  background-color: rgba(75, 93, 213, 0.621);
+  opacity: 100%;
+  margin-top: 20px;
+  color: white;
+  border-width: 2px;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+}
+.background{
+  background-image: url("./assets/container.jpeg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-repeat: no-repeat;
+  position: relative;
+  width: 110vw;
+  height: 50vw;
+}

@@ -1,33 +1,36 @@
-.register-header {
+.registerHeader {
     text-align: center;
     color: Black; 
 }
 
-.register-option {
+.registerOption {
     text-align: center;
     margin-top: 20px;
 }
 
-.register-option h1 {
+.registerOption h1 {
     font-size: 30px; 
     color: black; 
 }
 
-.register-button {
+.registerButton {
     width: 100%;
     color: white;
     background-color: #0F1C46;
-    border-radius: 20px;
+    border-radius: 10px;
 }
 
-.background-site {
+.backgroundSite {
+    background-image: url("./assets/background.jpeg");
+    background-repeat: no-repeat;
+    background-size: cover;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
 }
   
-.site-container {
+.siteContainer {
     flex-grow: 1;
 }
   

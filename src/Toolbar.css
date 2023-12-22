@@ -1,8 +1,8 @@
 .toolbar {
-    background-color:darkslateblue; 
+    background-color:rgb(72, 61, 139); 
     color: white;
     display: flex;
-    align-items: center;
+    align-items:center;
     justify-content: space-between;
     padding: 10px 20px;
   }
@@ -15,19 +15,20 @@
   }
 
 #dropdown-bugs{
-    background-color: gray;
-    opacity: 50%;
-    color: black;
-    font-family: fantasy;
-    width: 20vw;
-    
+    background-color: #584bac;
+    color: rgb(255, 255, 255);
+    border-color: white;
+    opacity: 100%;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    width: 25vw;
   }
   #dropdown-priority{
     background-color: black;    
   }
   
   .add-bug-btn :focus {
-    font-family: fantasy;
+    font-family: 'Courier New', Courier, monospace;
   }
   
   .user-info {
@@ -43,10 +44,10 @@
   }
   .dropdownOptions{
     width: 20vw;
-    font-family: fantasy;
+    font-family: 'Courier New', Courier, monospace;
   }
   .model-title{
-    font-family: fantasy;
+    font-family: 'Courier New', Courier, monospace;
     font-weight: bold;
     font-size: 26px;
   }
@@ -58,3 +59,15 @@
     background-repeat: no-repeat;
     background-size: cover;
   } */
+
+.add-bug-btn {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  color: white;
+  border-color: white;
+  background-color: #584bac;
+}
+.user-info {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+}

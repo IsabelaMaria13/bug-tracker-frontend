@@ -1,35 +1,35 @@
 import React from 'react';
-import './Register.css';
+import styles from './Register.module.css';
 import {Container, Row, Col, Form, Button, Card, Modal} from "react-bootstrap"
 
 const Register = () => {
 
     return (
-        <div className="background-site">
-        <Container className="site-container">
+        <div className={styles.backgroundSite}>
+        <Container className={`site-container ${styles.siteContainer}`}>
             <Row>
                 <Col>
-                    <h1 className="register-header">Register as</h1>
+                    <h1 className={styles.registerHeader}>Register as</h1>
                 </Col>
             </Row>
             <Row>
-                <Col className="register-option">
+                <Col className={styles.registerOption}>
                     <h1>As Tester</h1>
-                    <Button variant="dark" className="register-button">
+                    <Button variant="dark" className={styles.registerButton}>
                         Continue as Tester
                     </Button>
                 </Col>
-                <Col className="register-option">
-                    <h1>As Project Member</h1>
-                    <Button variant="dark" className="register-button">
+                <Col className={styles.registerOption}>
+                    <h1>As Developer</h1>
+                    <Button variant="dark" className={styles.registerButton}>
                         Continue as Project Member
                     </Button>
                 </Col>
             </Row>
         </Container>
-        <div className="text-center mt-3 white-text">
+        <div className={`text-center mt-3 white-text ${styles.textCenter}`}>
                 ©CTRL+C/CTRL+V DEV TEAM
-            </div>
+        </div>
     </div>
     )
 };   

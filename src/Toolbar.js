@@ -37,7 +37,7 @@ const Toolbar = ({ email }) => {
   return (
     <div className="toolbar">
       <span className="logo">BugMaster</span>
-      <DropdownButton id="dropdown-bugs" title="CHOOSE BUG">
+      <DropdownButton id="dropdown-bugs" title="Choose a Project">
         {bugs.map((bug, index) => (
           <Dropdown.Item key={index} eventKey={bug.title} onSelect={handleSelectedPriority}>
             {bug.title}
@@ -77,7 +77,7 @@ const Toolbar = ({ email }) => {
                 onSelect={handleSelectedPriority}
                 className="w-100"
               >
-                <Dropdown.Item eventKey="None">None</Dropdown.Item>
+                {/* <Dropdown.Item eventKey="None">None</Dropdown.Item> */}
                 <Dropdown.Item eventKey="Low">Low</Dropdown.Item>
                 <Dropdown.Item eventKey="Medium">Medium</Dropdown.Item>
                 <Dropdown.Item eventKey="High">High</Dropdown.Item>
@@ -99,7 +99,7 @@ const Toolbar = ({ email }) => {
                 placeholder="Assign to"
                 value={assignTo}
                 onChange={(e) => setAssignTo(e.target.value)}
-                required
+                // required
                 className="w-100"
               />
             </Form.Group>

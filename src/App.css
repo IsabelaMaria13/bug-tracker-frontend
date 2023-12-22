@@ -42,6 +42,10 @@
   background-image: url("./assets/background.jpeg");
   background-repeat: no-repeat;
   background-size: cover;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content:start;
 }
 
 .background-container {
@@ -54,13 +58,14 @@
 
 .site-container {
   background-color: white;
-  border-radius: 20px;
+  border-radius: 10px;
   width: 70%;
-  padding: 30px;
+  padding: 2%;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  flex-grow: 1;
 }
 
 .error-message{
