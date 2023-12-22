@@ -1,0 +1,38 @@
+.register-header {
+    text-align: center;
+    color: Black; 
+}
+
+.register-option {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.register-option h1 {
+    font-size: 30px; 
+    color: black; 
+}
+
+.register-button {
+    width: 100%;
+    color: white;
+    background-color: #0F1C46;
+    border-radius: 20px;
+}
+
+.background-site {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+  
+.site-container {
+    flex-grow: 1;
+}
+  
+.text-center {
+    text-align: center;
+    color: white;
+    padding-bottom: 10px;
+}

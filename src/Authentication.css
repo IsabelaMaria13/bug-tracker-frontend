@@ -1,7 +1,8 @@
 .auth-card {
     width: 700px;
+    height: 100vh;
     padding: 4rem;
-    background-image: url("./assets/container.jpeg");
+    background-image: white;
     background-size: cover;
     background-repeat: no-repeat;
     justify-content: center; 
