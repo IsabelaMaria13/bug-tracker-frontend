@@ -1,4 +1,5 @@
 import React, { createContext, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 const UserContext = createContext();
 
@@ -6,8 +7,8 @@ export const UserProvider = ({ children }) => {
     const [bugs, setBugs] = useState([]);
 
     const addBug = (newBug) => {
-        const bugWithStatus = { ...newBug, status: "TO DO" }; // Adaugă statusul "TO DO"
-        setBugs(currentBugs => [...currentBugs, bugWithStatus]);
+        const bugWithStatusAndId = { ...newBug, status: "TO DO", id: uuidv4() };
+        setBugs(currentBugs => [...currentBugs, bugWithStatusAndId]);
     };
 
     return (
