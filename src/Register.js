@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './Register.module.css';
-import {Container, Row, Col, Form, Button, Card, Modal} from "react-bootstrap"
+import {Container, Row, Col, Button} from "react-bootstrap"
 
 const Register = () => {
 

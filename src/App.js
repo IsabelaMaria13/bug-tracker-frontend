@@ -4,8 +4,6 @@ import Register from "./Register";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./Home";
 import { UserProvider } from "./UserContext";
-import AddBug from "./AddBug";
-import BugDetails from "./BugDetails";
 
 function App() {
   return (
@@ -14,9 +12,7 @@ function App() {
       <Routes>
        <Route path="/" element={<Authentication />} /> 
        <Route path="/home" element={<Home/>}/>
-       <Route path="addBug" element={<AddBug/>}/>
        <Route path="/register" element = {<Register />} />
-       <Route path="//bug/:bugId" element = {<BugDetails/>}/>
       </Routes>
     </Router>
     </UserProvider>

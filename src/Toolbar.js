@@ -12,6 +12,7 @@ const Toolbar = ({ email }) => {
   const [reporter, setReporter] = useState("");
   const [assignTo, setAssignTo] = useState("");
   const [link, setLink] = useState("");
+  const [additionalInfo, setAdditionalInfo] = useState("");
 
   const handleShowModel = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
@@ -25,13 +26,15 @@ const Toolbar = ({ email }) => {
       priority: selectedItem,
       reporter: reporter,
       assignTo: assignTo,
-      link: link
+      link: link,
+      additionalInfo: additionalInfo,
     });
     setShowModal(false);
     setBugTitle("");
     setReporter("");
     setAssignTo("");
     setLink("");
+    setAdditionalInfo("");
   };
 
   return (
@@ -39,7 +42,11 @@ const Toolbar = ({ email }) => {
       <span className="logo">BugMaster</span>
       <DropdownButton id="dropdown-bugs" title="Choose a Project">
         {bugs.map((bug, index) => (
-          <Dropdown.Item key={index} eventKey={bug.title} onSelect={handleSelectedPriority}>
+          <Dropdown.Item
+            key={index}
+            eventKey={bug.title}
+            onSelect={handleSelectedPriority}
+          >
             {bug.title}
           </Dropdown.Item>
         ))}
@@ -55,7 +62,11 @@ const Toolbar = ({ email }) => {
         {email}
         <div className="user-icon">👤</div>
       </span>
-      <Modal show={showModal} onHide={handleCloseModal} className="modal-background">
+      <Modal
+        show={showModal}
+        onHide={handleCloseModal}
+        className="modal-background"
+      >
         <Modal.Header closeButton>
           <Modal.Title className="model-title">ADD BUG</Modal.Title>
         </Modal.Header>
@@ -77,7 +88,6 @@ const Toolbar = ({ email }) => {
                 onSelect={handleSelectedPriority}
                 className="w-100"
               >
-                {/* <Dropdown.Item eventKey="None">None</Dropdown.Item> */}
                 <Dropdown.Item eventKey="Low">Low</Dropdown.Item>
                 <Dropdown.Item eventKey="Medium">Medium</Dropdown.Item>
                 <Dropdown.Item eventKey="High">High</Dropdown.Item>
@@ -99,7 +109,6 @@ const Toolbar = ({ email }) => {
                 placeholder="Assign to"
                 value={assignTo}
                 onChange={(e) => setAssignTo(e.target.value)}
-                // required
                 className="w-100"
               />
             </Form.Group>
@@ -110,6 +119,14 @@ const Toolbar = ({ email }) => {
                 value={link}
                 onChange={(e) => setLink(e.target.value)}
                 required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Control
+                as="textarea"
+                placeholder="Additional information"
+                onChange={(e) => setAdditionalInfo(e.target.value)}
+                maxLength={500}
               />
             </Form.Group>
             <Button type="submit" variant="dark" className="w-100">

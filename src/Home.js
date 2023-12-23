@@ -1,12 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Container,
   Row,
-  Col,
-  Form,
-  Button,
-  Card,
-  Modal,
+  Col
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useLocation } from "react-router-dom";
@@ -34,8 +30,8 @@ function Home() {
             </Col>
             <Col className="mb-3">
               <Dashboard
-              headerTitle="Implemented"
-              bugs={bugs.filter((bug) => bug.status === "Implemented")}
+              headerTitle="In progress"
+              bugs={bugs.filter((bug) => bug.status === "In progress")}
               />
             </Col>
             <Col className="mb-3">
