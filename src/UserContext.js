@@ -18,9 +18,19 @@ export const UserProvider = ({ children }) => {
             )
         );
     }
+    const updateBugStatus = (bugId, newStatus) => {
+        setBugs((currentBugs) => {
+          return currentBugs.map((bug) => {
+            if (bug.id === bugId) {
+              return { ...bug, status: newStatus };
+            }
+            return bug;
+          });
+        });
+      };
 
     return (
-        <UserContext.Provider value={{ bugs, addBug, updateBug }}>
+        <UserContext.Provider value={{ bugs, addBug, updateBug, updateBugStatus }}>
             {children}
         </UserContext.Provider>
     );

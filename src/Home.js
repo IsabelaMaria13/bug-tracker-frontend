@@ -26,30 +26,35 @@ function Home() {
               <Dashboard 
               headerTitle="TO DO"
               bugs={bugs.filter(bug => bug.status === 'TO DO')} 
+              nextStatus="In progress"
               />
             </Col>
             <Col className="mb-3">
               <Dashboard
               headerTitle="In progress"
               bugs={bugs.filter((bug) => bug.status === "In progress")}
+              nextStatus="Verification"
               />
             </Col>
             <Col className="mb-3">
               <Dashboard
               headerTitle="Verification"
               bugs={bugs.filter((bug) => bug.status === "Verification")}
+              nextStatus="Verification Done"
               />
             </Col>
             <Col className="mb-3">
               <Dashboard
                 headerTitle="Verification Done"
                 bugs={bugs.filter((bug) => bug.status === "Verification Done")}
+                nextStatus="Done"
               />
             </Col>
             <Col className="mb-3">
               <Dashboard
                 headerTitle="Done"
                 bugs={bugs.filter((bug) => bug.status === "Done")}
+                nextStatus="Closed Issue"
               />
             </Col>
           </Row>

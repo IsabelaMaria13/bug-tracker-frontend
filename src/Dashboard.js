@@ -10,8 +10,7 @@ import {
 import "./Dashboard.css";
 import { useUserContext } from "./UserContext";
 
-
-const Dashboard = ({ headerTitle, bugs = [] }) => {
+const Dashboard = ({ headerTitle, bugs = [], nextStatus }) => {
   const [showModal, setShowModal] = useState(false);
   const { updateBug } = useUserContext();
   const [priority, setPriority] = useState("Priority");
@@ -25,7 +24,8 @@ const Dashboard = ({ headerTitle, bugs = [] }) => {
   const [resolution, setResolution] = useState("Resolution");
   const [gitCommitLink, setGitCommitLink] = useState("");
   const [bugIdToUpdate, setBugIdToUpdate] = useState(null);
-
+  const { updateBugStatus } = useUserContext();
+  const [bugsShownModal, setBugsShownModal] = useState(new Set());
 
   useEffect(() => {
     if (bugIdToUpdate !== null) {
@@ -39,9 +39,9 @@ const Dashboard = ({ headerTitle, bugs = [] }) => {
         setReporter(bugToUpdate.reporter);
         setAssignTo(bugToUpdate.assignTo);
         setLink(bugToUpdate.link);
-        setTesting(bugToUpdate.mentions || "");
-        setSolution(bugIdToUpdate.solution || "");
-        setResolution(bugToUpdate.resolution || "");
+        setTesting(bugToUpdate.testing || "");
+        setSolution(bugToUpdate.solution || "");
+        setResolution(bugToUpdate.resolution);
         setGitCommitLink(bugToUpdate.gitCommitLink || "");
         setAdditionalInfo(bugToUpdate.additionalInfo || "");
       }
@@ -55,7 +55,12 @@ const Dashboard = ({ headerTitle, bugs = [] }) => {
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setBugIdToUpdate(null); // Resetează id-ul bug-ului când se închide modalul
+    setBugsShownModal((prevSet) => {
+      const newSet = new Set(prevSet);
+      newSet.delete(bugIdToUpdate);
+      return newSet;
+    });
+    setBugIdToUpdate(null);
   };
 
   const handleSelectedPriority = (eventKey) => setPriority(eventKey);
@@ -89,8 +94,20 @@ const Dashboard = ({ headerTitle, bugs = [] }) => {
     setGitCommitLink("");
     setAdditionalInfo("");
   };
+  // actualizeaza mutarea bug-ului in dashboard
+  const moveBugToNextStatus = (bug) => {
+    if (
+      bug.status === "In progress" &&
+      nextStatus === "Verification" &&
+      !bugsShownModal.has(bug.id)
+    ) {
+      handleShowModal(bug.id);
+      setBugsShownModal((prevSet) => new Set(prevSet).add(bug.id));
+    } else {
+      updateBugStatus(bug.id, nextStatus);
+    }
+  };
 
- 
   return (
     <Card className="mb-3 h-100 dashboardCard">
       <Card.Header>{headerTitle}</Card.Header>
@@ -109,6 +126,22 @@ const Dashboard = ({ headerTitle, bugs = [] }) => {
               <Card.Body>
                 <Card.Title>{bug.title}</Card.Title>
                 <Card.Text>Priority: {bug.priority}</Card.Text>
+                {(bug.status === "Verification" ||
+                  bug.status === "Verification Done" ||
+                  bug.status === "Done") && (
+                  <Card.Text>
+                    Resolution: {bug.resolution || "Not Set"}
+                  </Card.Text>
+                )}
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveBugToNextStatus(bug);
+                  }}
+                  className="btn-smaller-refined"
+                >
+                  Move to {nextStatus}
+                </Button>{" "}
               </Card.Body>
             </Card>
           </div>
