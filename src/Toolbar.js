@@ -3,6 +3,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { DropdownButton, Dropdown, Button, Modal, Form } from "react-bootstrap";
 import "./Toolbar.css";
 import { useUserContext } from "./UserContext";
+import { useNavigate, Link } from 'react-router-dom';
+import { logoutUser } from './auth.service';
 
 const Toolbar = ({ email }) => {
   const { bugs, addBug } = useUserContext();
@@ -13,12 +15,20 @@ const Toolbar = ({ email }) => {
   const [assignTo, setAssignTo] = useState("");
   const [link, setLink] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
+  const navigate = useNavigate();
 
-  const handleShowModel = () => setShowModal(true);
+
+  const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const handleShowLogoutModal = () => setShowLogoutModal(true);
+  const handleCloseLogoutModal = () => setShowLogoutModal(false);
+
   const handleSelectedPriority = (eventKey) => {
     setSelectedItem(eventKey);
   };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     addBug({
@@ -35,6 +45,12 @@ const Toolbar = ({ email }) => {
     setAssignTo("");
     setLink("");
     setAdditionalInfo("");
+  };
+
+  const handleLogout = () => {
+    logoutUser();
+    navigate('/');
+    handleCloseLogoutModal();
   };
 
   return (
@@ -54,18 +70,39 @@ const Toolbar = ({ email }) => {
       <Button
         variant="outline-primary"
         className="add-bug-btn"
-        onClick={handleShowModel}
+        onClick={handleShowModal}
       >
         Add Bug
       </Button>
       <span className="user-info">
         {email}
-        <div className="user-icon">👤</div>
+        <div className="user-icon" onClick={handleShowLogoutModal}>
+          👤
+        </div>
       </span>
+
+      <Modal show={showLogoutModal} onHide={handleCloseLogoutModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Logout Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to logout?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseLogoutModal}>
+            No
+          </Button>
+          <Button variant="primary" onClick={handleLogout}>
+            Yes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <Modal
         show={showModal}
         onHide={handleCloseModal}
         className="modal-background"
+        centered
       >
         <Modal.Header closeButton>
           <Modal.Title className="model-title">ADD BUG</Modal.Title>

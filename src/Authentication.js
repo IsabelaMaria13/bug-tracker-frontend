@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Row,
@@ -10,8 +10,9 @@ import {
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
-import loginUser from "./auth.service";
+import { loginUser } from "./auth.service";
 import './Authentication.css';
+import registerUser from "./register.service";
 
 function Authentication() {
   const navigate = useNavigate();
@@ -21,19 +22,56 @@ function Authentication() {
   const [invalidData, setInvalidData] = useState("");
   const [email, setEmail] = useState("");
   const [passwordLogin, setPasswordLogin] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [role, setRole] = useState("TST");
 
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
-  const handleSubmit = (e) => {
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+
+  const handleSubmit = async () => {
     if (password !== confirmPassword) {
       setPasswordDoNotMatch("Passwords do not match.");
       return;
     } else {
-      navigate('/register');
+      try {
+        await registerUser({
+          identifier: registerEmail,
+          password: password,
+          role: role,
+        });
+        // Setează flag-ul de succes la true
+        setRegistrationSuccess(true);
+
+      } catch (error) {
+        setInvalidData(error);
+        handleShowModal();
+      }
     }
   };
+
+  const handleLoginAfterRegistration = async () => {
+    try {
+      // Loghează utilizatorul cu datele de înregistrare
+      const response = await loginUser(registerEmail, password);
+      localStorage.setItem("token", response.accessToken);
+      navigate('/home', { state: { email: registerEmail } });
+      handleCloseModal();
+    } catch (error) {
+      setInvalidData("Invalid email or password.");
+      handleShowModal();
+    }
+  };
+
+  useEffect(() => {
+    // Apelează funcția de login după înregistrare doar dacă înregistrarea a avut succes
+    if (registrationSuccess) {
+      handleLoginAfterRegistration();
+    }
+  }, [registrationSuccess]);
+
   const handleLoginSubmit = async (e) => {
     try {
       const response = await loginUser(email, passwordLogin);
@@ -45,6 +83,7 @@ function Authentication() {
       handleShowModal();
     }
   };
+
   return (
     <Container fluid className="bg-dark text-white p-5 background-site">
       <Row className="justify-content-center">
@@ -93,7 +132,12 @@ function Authentication() {
                   }}
                 >
                   <Form.Group className="mb-3" controlId="registerEmail">
-                    <Form.Control type="email" placeholder="Email" required />
+                    <Form.Control
+                      type="email"
+                      placeholder="Email"
+                      required
+                      onChange={(e) => setRegisterEmail(e.target.value)}
+                    />
                   </Form.Group>
                   <Form.Group className="mb-3" controlId="registerPassword">
                     <Form.Control
@@ -104,17 +148,25 @@ function Authentication() {
                     />
                   </Form.Group>
 
-                  <Form.Group className="mb-2" controlId="confirmPassword">
+                  <Form.Group className="mb-3" controlId="confirmPassword">
                     <Form.Control
                       type="password"
                       placeholder="Confirm Password"
                       required
                       onChange={(e) => setConfirmPassword(e.target.value)}
                     />
-                  </Form.Group>
-                  {passwordDoNotMatch && (
+                    {passwordDoNotMatch && (
                     <div className="error-message">{passwordDoNotMatch}</div>
                   )}
+                  </Form.Group>
+
+                  <Form.Group className="mb-3" controlId="userRole">
+                    <Form.Select onChange={(e) => setRole(e.target.value)}>
+                      <option value="TST">Tester</option>
+                      <option value="MP">Project Member</option>
+                    </Form.Select>
+                  </Form.Group>   
+                  
                   <Button variant="dark" type="submit">
                     Create
                   </Button>

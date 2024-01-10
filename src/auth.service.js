@@ -1,17 +1,31 @@
-import axios from 'axios'
-
 const API_URL = 'http://localhost:3001/api';
 
-const loginUser = async (email, password) =>
-{
-    try{
-        const response = await axios.post(`${API_URL}/auth/login`, {identifier: email, password});
-        return response.data;
+const loginUser = async (email, password) => {
+  try {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        identifier: email,
+        password,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    catch(error){
-        console.error('Error during login:', error);
-        throw error;
-    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error during login:', error);
+    throw error;
+  }
 };
 
-export default loginUser
+const logoutUser = () => {
+    localStorage.removeItem('token');
+  };
+
+export { loginUser, logoutUser};

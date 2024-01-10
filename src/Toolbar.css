@@ -41,7 +41,13 @@
     padding: 10px;
     margin-left: 10px;
     border-radius: 50%;
+    cursor: pointer;
   }
+
+  .user-icon:hover {
+    opacity: 0.8;
+  }
+
   .dropdownOptions{
     width: 20vw;
     font-family: 'Courier New', Courier, monospace;
