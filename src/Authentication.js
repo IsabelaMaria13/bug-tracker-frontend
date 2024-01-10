@@ -70,6 +70,7 @@ function Authentication() {
     if (registrationSuccess) {
       handleLoginAfterRegistration();
     }
+    // eslint-disable-next-line
   }, [registrationSuccess]);
 
   const handleLoginSubmit = async (e) => {

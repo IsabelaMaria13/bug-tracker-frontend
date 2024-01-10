@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { DropdownButton, Dropdown, Button, Modal, Form } from "react-bootstrap";
 import "./Toolbar.css";
 import { useUserContext } from "./UserContext";
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { logoutUser } from './auth.service';
 
 const Toolbar = ({ email }) => {
