@@ -5,10 +5,12 @@ import "./Toolbar.css";
 import { useUserContext } from "./UserContext";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "./auth.service";
-import ProjectComponent from './Project';
+import ProjectComponent from "./Project";
 
-const API_URL = 'http://localhost:3001/api';const Toolbar = ({ userProfile }) => {
-  const { bugs, addBug } = useUserContext();
+const API_URL = "http://localhost:3001/api";
+
+const Toolbar = ({ userProfile }) => {
+  const { bugs, addBug, selectedProjectId, setSelectedProjectId } = useUserContext();
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState("Priority");
   const [bugTitle, setBugTitle] = useState("");
@@ -23,22 +25,36 @@ const API_URL = 'http://localhost:3001/api';const Toolbar = ({ userProfile }) =>
   const handleShowLogoutModal = () => setShowLogoutModal(true);
   const handleCloseLogoutModal = () => setShowLogoutModal(false);
 
-  const handleSelectedPriority = (eventKey) => {
-    setSelectedItem(eventKey);
+  const handleProjectSelect = (eventKey) => {
+    console.log(eventKey);
+    setSelectedProjectId(eventKey);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    addBug({
+
+    if (!selectedProjectId) {
+      alert("Please select a project first.");
+      return;
+    }
+
+    const newBug = {
       title: bugTitle,
       priority: selectedItem,
       details: additionalInfo,
       issueLink: link,
-    });
-    setShowModal(false);
-    setBugTitle("");
-    setLink("");
-    setAdditionalInfo("");
+      projectId: selectedProjectId,
+    };
+    try {
+      await addBug(newBug);
+      setShowModal(false);
+      setBugTitle("");
+      setLink("");
+      setSelectedItem("Priority");
+      setAdditionalInfo("");
+    } catch (error) {
+      console.error("Error adding bug:", error);
+    }
   };
 
   const handleLogout = () => {
@@ -49,15 +65,15 @@ const API_URL = 'http://localhost:3001/api';const Toolbar = ({ userProfile }) =>
 
   const fetchAllProjects = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const response = await fetch(`${API_URL}/projects`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to fetch projects");
       }
-  
+
       const data = await response.json();
       return data;
     } catch (error) {
@@ -81,8 +97,9 @@ const API_URL = 'http://localhost:3001/api';const Toolbar = ({ userProfile }) =>
     fetchProjects();
   }, []);
 
-  const handleProjectSelect = (projectId) => {
-    setSelectedProject(projectId);
+
+  const handleSelectedPriority = (eventKey) => {
+    setSelectedItem(eventKey);
   };
 
   return (
@@ -91,11 +108,11 @@ const API_URL = 'http://localhost:3001/api';const Toolbar = ({ userProfile }) =>
       <ProjectComponent />
       {projects.length > 0 && (
         <DropdownButton id="dropdown-bugs" title="Choose a Project">
-            {projects.map((project) => (
+          {projects.map((project) => (
             <Dropdown.Item
               key={project.id}
               eventKey={project.id}
-              onSelect={() => handleProjectSelect(project.id)}
+              onSelect={(eventKey) => handleProjectSelect(eventKey)}
             >
               {project.projectName}
             </Dropdown.Item>
@@ -113,7 +130,7 @@ const API_URL = 'http://localhost:3001/api';const Toolbar = ({ userProfile }) =>
       )}
 
       <span className="user-info">
-        {userProfile && userProfile.email}  
+        {userProfile && userProfile.email}
         <div className="user-icon" onClick={handleShowLogoutModal}>
           👤
         </div>

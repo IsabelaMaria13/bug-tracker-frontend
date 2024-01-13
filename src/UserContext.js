@@ -6,20 +6,24 @@ const API_URL = 'http://localhost:3001/api';
 
 export const UserProvider = ({ children }) => {
     const [bugs, setBugs] = useState([]);
+    const [selectedProjectId, setSelectedProjectId] = useState(null);
 
     const addBug = async (newBug) => {
       const token = localStorage.getItem('token');
+      const projectId = newBug.projectId; 
       try {
-        const response = await fetch(`${API_URL}/bugs`, {
+        const response = await fetch(`${API_URL}/bugs/${projectId}`, { 
           method: 'POST',
-          headers: { 'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`, },
-          body: JSON.stringify(newBug), 
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(newBug),
         });
         if (!response.ok) {
           throw new Error('Failed to create bug');
         }
-        const addedBug = await response.json(); 
+        const addedBug = await response.json();
     
         setBugs(currentBugs => [...currentBugs, addedBug]);
       } catch (error) {
@@ -47,7 +51,7 @@ export const UserProvider = ({ children }) => {
       };
 
     return (
-        <UserContext.Provider value={{ bugs, addBug, updateBug, updateBugStatus }}>
+        <UserContext.Provider value={{ bugs, addBug, updateBug, updateBugStatus, selectedProjectId, setSelectedProjectId }}>
             {children}
         </UserContext.Provider>
     );

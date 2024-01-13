@@ -26,6 +26,10 @@ const Dashboard = ({ headerTitle, bugs = [], nextStatus }) => {
   const [bugIdToUpdate, setBugIdToUpdate] = useState(null);
   const { updateBugStatus } = useUserContext();
   const [bugsShownModal, setBugsShownModal] = useState(new Set());
+  const { selectedProjectId } = useUserContext();
+
+  const filteredBugs = bugs.filter(bug => bug.projectId === selectedProjectId);
+  
 
   useEffect(() => {
     if (bugIdToUpdate !== null) {
@@ -46,7 +50,7 @@ const Dashboard = ({ headerTitle, bugs = [], nextStatus }) => {
         setAdditionalInfo(bugToUpdate.additionalInfo || "");
       }
     }
-  }, [bugIdToUpdate, bugs]);
+  }, [bugIdToUpdate, bugs, selectedProjectId]);
 
   const handleShowModal = (bugId) => {
     setBugIdToUpdate(bugId);
@@ -112,7 +116,7 @@ const Dashboard = ({ headerTitle, bugs = [], nextStatus }) => {
     <Card className="mb-3 h-100 dashboardCard">
       <Card.Header>{headerTitle}</Card.Header>
       <Card.Body>
-        {bugs.map((bug, index) => (
+        {filteredBugs.map((bug, index) => ( 
           <div
             key={index}
             className="bug-item"
