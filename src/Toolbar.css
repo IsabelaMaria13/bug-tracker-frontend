@@ -3,7 +3,7 @@
     color: white;
     display: flex;
     align-items:center;
-    justify-content: space-between;
+    justify-content:space-between;
     padding: 10px 20px;
   }
   
@@ -21,7 +21,8 @@
     opacity: 100%;
     font-family: 'Courier New', Courier, monospace;
     font-weight: bold;
-    width: 25vw;
+    width: 40vw;
+    justify-self:first baseline;
   }
   #dropdown-priority{
     background-color: black;    

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Button, Modal, Form } from "react-bootstrap";
+import { useUserContext } from "./UserContext";
 
 const API_URL = 'http://localhost:3001/api';
 
 const ProjectComponent = () => {
+  const { setSelectedProjectId} = useUserContext();
   const [showModal, setShowModal] = useState(false);
   const [projectName, setProjectName] = useState("");
   const [repositoryName, setRepositoryName] = useState("");
@@ -24,9 +26,6 @@ const ProjectComponent = () => {
     setShowModal(false);
   };
 
-  const [allMPs, setAllMPs] = useState([]);
-  const [allTSTs, setAllTSTs] = useState([]);
-
   const fetchAllMPs = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -40,7 +39,8 @@ const ProjectComponent = () => {
       }
 
       const data = await response.json();
-      setAllMPs(data);
+      const mpIDs = data.map((user) => user.id);
+      setProjectMembers(mpIDs);
     } catch (error) {
       console.error("Error fetching MPs:", error);
     }
@@ -59,7 +59,8 @@ const ProjectComponent = () => {
       }
 
       const data = await response.json();
-      setAllTSTs(data);
+      const tstIDs = data.map((user) => user.id);
+      setTesters(tstIDs);
     } catch (error) {
       console.error("Error fetching TSTs:", error);
     }
@@ -89,6 +90,7 @@ const ProjectComponent = () => {
 
       const newProject = await response.json();
       setProjects([...projects, newProject]); 
+      setSelectedProjectId(newProject.id);
       handleCloseModal();
     } catch (error) {
       console.error("Error during project creation:", error);
@@ -97,7 +99,10 @@ const ProjectComponent = () => {
 
   return (
     <>
-      <Button variant="primary" onClick={handleShowModal}>
+      <Button
+          variant="outline-primary"
+          className="add-bug-btn"
+          onClick={handleShowModal}>
         Add Project
       </Button>
 

@@ -14,11 +14,13 @@ import { getProfilUser } from "./auth.service";
 
 function Home() {
   const location = useLocation();
-  const { email } = location.state || {};
-  const { bugs, setBugs } = useUserContext();
+  const { bugs, setBugs, setSelectedProjectId  } = useUserContext();
   const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
+
+    setSelectedProjectId(null);
+
     const fetchUserProfile = async () => {
       try {
         const token = localStorage.getItem('token'); 
@@ -32,7 +34,7 @@ function Home() {
     };
 
     fetchUserProfile();
-  }, [setBugs]);
+  }, [setBugs, setSelectedProjectId]);
 
   return (
     <div>

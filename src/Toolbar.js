@@ -43,7 +43,7 @@ const Toolbar = ({ userProfile }) => {
       priority: selectedItem,
       details: additionalInfo,
       issueLink: link,
-      projectId: selectedProjectId,
+      project: selectedProjectId,
     };
     try {
       await addBug(newBug);
@@ -89,13 +89,17 @@ const Toolbar = ({ userProfile }) => {
       try {
         const projectsData = await fetchAllProjects();
         setProjects(projectsData);
+
+        if (!selectedProjectId && projectsData.length > 0) {
+          setSelectedProjectId(projectsData[0].id);
+        }
       } catch (error) {
         console.error("Error fetching projects:", error);
       }
     };
 
     fetchProjects();
-  }, []);
+  }, [selectedProjectId]);
 
 
   const handleSelectedPriority = (eventKey) => {
@@ -105,7 +109,6 @@ const Toolbar = ({ userProfile }) => {
   return (
     <div className="toolbar">
       <span className="logo">BugMaster</span>
-      <ProjectComponent />
       {projects.length > 0 && (
         <DropdownButton id="dropdown-bugs" title="Choose a Project">
           {projects.map((project) => (
@@ -119,6 +122,7 @@ const Toolbar = ({ userProfile }) => {
           ))}
         </DropdownButton>
       )}
+      {userProfile && userProfile.role === "MP" && (<ProjectComponent />)}
       {userProfile && userProfile.role === "TST" && (
         <Button
           variant="outline-primary"
@@ -178,9 +182,9 @@ const Toolbar = ({ userProfile }) => {
                 onSelect={handleSelectedPriority}
                 className="w-100"
               >
-                <Dropdown.Item eventKey="Low">Low</Dropdown.Item>
-                <Dropdown.Item eventKey="Medium">Medium</Dropdown.Item>
-                <Dropdown.Item eventKey="High">High</Dropdown.Item>
+                <Dropdown.Item eventKey="LOW">LOW</Dropdown.Item>
+                <Dropdown.Item eventKey="MEDIUM">MEDIUM</Dropdown.Item>
+                <Dropdown.Item eventKey="HIGH">HIGH</Dropdown.Item>
               </DropdownButton>
             </Form.Group>
             <Form.Group className="mb-3">
