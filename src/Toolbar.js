@@ -4,17 +4,13 @@ import { DropdownButton, Dropdown, Button, Modal, Form } from "react-bootstrap";
 import "./Toolbar.css";
 import { useUserContext } from "./UserContext";
 import { useNavigate } from "react-router-dom";
-import { logoutUser, getProfilUser } from "./auth.service";
+import { logoutUser } from "./auth.service";
 import ProjectComponent from './Project';
 
-
-
-const Toolbar = ({userProfile}) => {
+const Toolbar = ({ userProfile }) => {
   const { bugs, addBug } = useUserContext();
   const [showModal, setShowModal] = useState(false);
-  const [showProjectModal, setShowProjectModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState("Priority");
-  const [assignTo, setAssignTo] = useState("");
   const [bugTitle, setBugTitle] = useState("");
   const [link, setLink] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
@@ -27,9 +23,6 @@ const Toolbar = ({userProfile}) => {
   const handleShowLogoutModal = () => setShowLogoutModal(true);
   const handleCloseLogoutModal = () => setShowLogoutModal(false);
 
-  const handleShowProjectModal = () => setShowProjectModal(true);
-  const handleCloseProjectModal = () => setShowProjectModal(false);
-
   const handleSelectedPriority = (eventKey) => {
     setSelectedItem(eventKey);
   };
@@ -41,7 +34,6 @@ const Toolbar = ({userProfile}) => {
       priority: selectedItem,
       details: additionalInfo,
       issueLink: link,
-      assignedTo: "",
     });
     setShowModal(false);
     setBugTitle("");
@@ -60,19 +52,22 @@ const Toolbar = ({userProfile}) => {
       <span className="logo">BugMaster</span>
       <ProjectComponent />
       <DropdownButton id="dropdown-bugs" title="Choose a Project">
-      {userProfile && userProfile.projects && (
+        {userProfile && userProfile.projects && (
           <Dropdown.Item eventKey={userProfile.projects} onSelect={handleSelectedPriority}>
             {userProfile.projects}
           </Dropdown.Item>
         )}
       </DropdownButton>
-      <Button
-        variant="outline-primary"
-        className="add-bug-btn"
-        onClick={handleShowModal}
-      >
-        Add Bug
-      </Button>
+      {userProfile && userProfile.role === "TST" && (
+        <Button
+          variant="outline-primary"
+          className="add-bug-btn"
+          onClick={handleShowModal}
+        >
+          Add Bug
+        </Button>
+      )}
+
       <span className="user-info">
         {userProfile && userProfile.email}  
         <div className="user-icon" onClick={handleShowLogoutModal}>

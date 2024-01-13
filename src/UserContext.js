@@ -1,16 +1,19 @@
 import React, { createContext, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 
 const UserContext = createContext();
+
+const API_URL = 'http://localhost:3001/api';
 
 export const UserProvider = ({ children }) => {
     const [bugs, setBugs] = useState([]);
 
     const addBug = async (newBug) => {
+      const token = localStorage.getItem('token');
       try {
-        const response = await fetch('/api/bugs', {
+        const response = await fetch(`${API_URL}/bugs`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`, },
           body: JSON.stringify(newBug), 
         });
         if (!response.ok) {
