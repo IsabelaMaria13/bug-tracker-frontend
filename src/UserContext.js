@@ -6,10 +6,24 @@ const UserContext = createContext();
 export const UserProvider = ({ children }) => {
     const [bugs, setBugs] = useState([]);
 
-    const addBug = (newBug) => {
-        const bugWithStatusAndId = { ...newBug, status: "TO DO", id: uuidv4() };
-        setBugs(currentBugs => [...currentBugs, bugWithStatusAndId]);
+    const addBug = async (newBug) => {
+      try {
+        const response = await fetch('/api/bugs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newBug), 
+        });
+        if (!response.ok) {
+          throw new Error('Failed to create bug');
+        }
+        const addedBug = await response.json(); 
+    
+        setBugs(currentBugs => [...currentBugs, addedBug]);
+      } catch (error) {
+        console.error('Error during addBug:', error);
+      }
     };
+
 
     const updateBug = (bugId, updatedDetails) => {
         setBugs(currentBugs =>
