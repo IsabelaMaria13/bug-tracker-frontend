@@ -4,9 +4,9 @@ import { DropdownButton, Dropdown, Button, Modal, Form } from "react-bootstrap";
 import "./Toolbar.css";
 import { useUserContext } from "./UserContext";
 import { useNavigate } from 'react-router-dom';
-import { logoutUser } from './auth.service';
+import { logoutUser, getProfilUser } from './auth.service';
 
-const Toolbar = ({ email }) => {
+const Toolbar = ({userProfile}) => {
   const { bugs, addBug } = useUserContext();
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState("Priority");
@@ -57,15 +57,11 @@ const Toolbar = ({ email }) => {
     <div className="toolbar">
       <span className="logo">BugMaster</span>
       <DropdownButton id="dropdown-bugs" title="Choose a Project">
-        {bugs.map((bug, index) => (
-          <Dropdown.Item
-            key={index}
-            eventKey={bug.title}
-            onSelect={handleSelectedPriority}
-          >
-            {bug.title}
+      {userProfile && userProfile.projects && (
+          <Dropdown.Item eventKey={userProfile.projects} onSelect={handleSelectedPriority}>
+            {userProfile.projects}
           </Dropdown.Item>
-        ))}
+        )}
       </DropdownButton>
       <Button
         variant="outline-primary"
@@ -75,7 +71,7 @@ const Toolbar = ({ email }) => {
         Add Bug
       </Button>
       <span className="user-info">
-        {email}
+        {userProfile && userProfile.email}  
         <div className="user-icon" onClick={handleShowLogoutModal}>
           👤
         </div>

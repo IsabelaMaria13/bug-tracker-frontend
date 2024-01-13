@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState} from "react";
 import {
   Container,
   Row,
@@ -10,15 +10,33 @@ import Toolbar from "./Toolbar";
 import Dashboard from "./Dashboard";
 import { useUserContext } from "./UserContext";
 import "./Home.css";
+import { getProfilUser } from "./auth.service";
 
 function Home() {
   const location = useLocation();
   const { email } = location.state || {};
-  const { bugs } = useUserContext();
+  const { bugs, setBugs } = useUserContext();
+  const [userProfile, setUserProfile] = useState(null);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem('token'); 
+        const userProfileData = await getProfilUser(token);
+        setUserProfile(userProfileData);
+        
+        // setBugs(userProfile.projects);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [setBugs]);
 
   return (
     <div>
-      <Toolbar email={email} />
+      <Toolbar userProfile={userProfile} />
       <div className="background-site">
         <Container>
           <Row className="justify-content-center">
