@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { DropdownButton, Dropdown, Button, Modal, Form } from "react-bootstrap";
 import "./Toolbar.css";
@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { logoutUser, getProfilUser } from "./auth.service";
 import ProjectComponent from './Project';
 
-
+const API_URL = 'http://localhost:3001/api';
 
 const Toolbar = ({userProfile}) => {
   const { bugs, addBug } = useUserContext();
@@ -55,17 +55,61 @@ const Toolbar = ({userProfile}) => {
     handleCloseLogoutModal();
   };
 
+  const fetchAllProjects = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/projects`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch projects");
+      }
+  
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+      throw error;
+    }
+  };
+  const [projects, setProjects] = useState([]);
+  const [selectedProject, setSelectedProject] = useState(null);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const projectsData = await fetchAllProjects();
+        setProjects(projectsData);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  const handleProjectSelect = (projectId) => {
+    setSelectedProject(projectId);
+  };
+
   return (
     <div className="toolbar">
       <span className="logo">BugMaster</span>
       <ProjectComponent />
-      <DropdownButton id="dropdown-bugs" title="Choose a Project">
-      {userProfile && userProfile.projects && (
-          <Dropdown.Item eventKey={userProfile.projects} onSelect={handleSelectedPriority}>
-            {userProfile.projects}
-          </Dropdown.Item>
-        )}
-      </DropdownButton>
+      {projects.length > 0 && (
+        <DropdownButton id="dropdown-bugs" title="Choose a Project">
+          {projects.map((project) => (
+            <Dropdown.Item
+              key={project.id}
+              eventKey={project.id}
+              onSelect={() => handleProjectSelect(project.id)}
+            >
+              {project.projectName}
+            </Dropdown.Item>
+          ))}
+        </DropdownButton>
+      )}
       <Button
         variant="outline-primary"
         className="add-bug-btn"
