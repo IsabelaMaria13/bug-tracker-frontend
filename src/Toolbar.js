@@ -6,17 +6,19 @@ import { useUserContext } from "./UserContext";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "./auth.service";
 import ProjectComponent from "./Project";
+import Enroll from "./Enroll";
 
 const API_URL = "http://localhost:3001/api";
 
 const Toolbar = ({ userProfile }) => {
-  const { bugs, addBug, selectedProjectId, setSelectedProjectId } = useUserContext();
+  const { bugs, addBug, selectedProjectId, setSelectedProjectId, fetchBugsForProject } = useUserContext();
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState("Priority");
   const [bugTitle, setBugTitle] = useState("");
   const [link, setLink] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
   const navigate = useNavigate();
+  const [projects, setProjects] = useState([]);
 
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
@@ -25,9 +27,10 @@ const Toolbar = ({ userProfile }) => {
   const handleShowLogoutModal = () => setShowLogoutModal(true);
   const handleCloseLogoutModal = () => setShowLogoutModal(false);
 
-  const handleProjectSelect = (eventKey) => {
-    console.log(eventKey);
-    setSelectedProjectId(eventKey);
+  const handleProjectSelect = (projectId) => {
+    setSelectedProjectId(projectId); 
+    console.log(projectId);
+    fetchBugsForProject(projectId);
   };
 
   const handleSubmit = async (e) => {
@@ -81,8 +84,7 @@ const Toolbar = ({ userProfile }) => {
       throw error;
     }
   };
-  const [projects, setProjects] = useState([]);
-  const [selectedProject, setSelectedProject] = useState(null);
+
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -91,7 +93,8 @@ const Toolbar = ({ userProfile }) => {
         setProjects(projectsData);
 
         if (!selectedProjectId && projectsData.length > 0) {
-          setSelectedProjectId(projectsData[0].id);
+          const projectId = projectsData[0].id;
+          setSelectedProjectId(projectId);
         }
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -113,17 +116,18 @@ const Toolbar = ({ userProfile }) => {
         <DropdownButton id="dropdown-bugs" title="Choose a Project">
           {projects.map((project) => (
             <Dropdown.Item
-              key={project.id}
-              eventKey={project.id}
-              onSelect={(eventKey) => handleProjectSelect(eventKey)}
+            key={project.id}
+            eventKey={project.id}
             >
               {project.projectName}
+              <Button onClick={() => handleProjectSelect(project.id)}>Select</Button>
             </Dropdown.Item>
           ))}
         </DropdownButton>
       )}
       {userProfile && userProfile.role === "MP" && (<ProjectComponent />)}
-      {userProfile && userProfile.role === "TST" && (
+     {userProfile && userProfile.role === "TST" && (
+      <>
         <Button
           variant="outline-primary"
           className="add-bug-btn"
@@ -131,7 +135,9 @@ const Toolbar = ({ userProfile }) => {
         >
           Add Bug
         </Button>
-      )}
+        <Enroll selectedProjectId={selectedProjectId} />
+      </>
+    )}
 
       <span className="user-info">
         {userProfile && userProfile.email}

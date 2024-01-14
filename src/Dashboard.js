@@ -10,9 +10,12 @@ import {
 import "./Dashboard.css";
 import { useUserContext } from "./UserContext";
 
-const Dashboard = ({ headerTitle, bugs = [], nextStatus }) => {
+const API_URL = "http://localhost:3001/api";
+
+const Dashboard = ({ headerTitle, nextStatus }) => {
   const [showModal, setShowModal] = useState(false);
-  const { updateBug } = useUserContext();
+  const { updateBug, updateBugStatus, selectedProjectId, bugs } =
+    useUserContext();
   const [priority, setPriority] = useState("Priority");
   const [bugTitle, setBugTitle] = useState("");
   const [reporter, setReporter] = useState("");
@@ -24,23 +27,18 @@ const Dashboard = ({ headerTitle, bugs = [], nextStatus }) => {
   const [resolution, setResolution] = useState("Resolution");
   const [gitCommitLink, setGitCommitLink] = useState("");
   const [bugIdToUpdate, setBugIdToUpdate] = useState(null);
-  const { updateBugStatus } = useUserContext();
   const [bugsShownModal, setBugsShownModal] = useState(new Set());
-  const { selectedProjectId } = useUserContext();
-
-  const filteredBugs = bugs.filter(bug => bug.projectId === selectedProjectId);
-  
 
   useEffect(() => {
     if (bugIdToUpdate !== null) {
       // Găsește bug-ul cu id-ul specificat
       const bugToUpdate = bugs.find((bug) => bug.id === bugIdToUpdate);
 
+     
       // Actualizează starea locală cu valorile bug-ului
       if (bugToUpdate) {
         setBugTitle(bugToUpdate.title);
         setPriority(bugToUpdate.priority);
-        setReporter(bugToUpdate.reporter);
         setAssignTo(bugToUpdate.assignTo);
         setLink(bugToUpdate.link);
         setTesting(bugToUpdate.testing || "");
@@ -98,58 +96,74 @@ const Dashboard = ({ headerTitle, bugs = [], nextStatus }) => {
     setGitCommitLink("");
     setAdditionalInfo("");
   };
-  // actualizeaza mutarea bug-ului in dashboard
+
+
   const moveBugToNextStatus = (bug) => {
-    if (
-      bug.status === "In progress" &&
-      nextStatus === "Verification" &&
-      !bugsShownModal.has(bug.id)
-    ) {
-      handleShowModal(bug.id);
-      setBugsShownModal((prevSet) => new Set(prevSet).add(bug.id));
+    const mappedNextStatus = statusMap[nextStatus];
+    if (bug.status === statusMap['In Progress'] && mappedNextStatus === 'Verification') {
+
+      if (!bugsShownModal.has(bug.id)) {
+        setBugsShownModal((prevSet) => new Set(prevSet).add(bug.id));
+        handleShowModal(bug.id);
+      }
     } else {
-      updateBugStatus(bug.id, nextStatus);
+
+      updateBugStatus(bug.id, mappedNextStatus);
     }
   };
+
+  const statusMap = {
+    "To Do": "ToDo",
+    "In Progress": "InProgress",
+    "Verification": "Verification",
+    "Verification Done": "VerificationDone",
+    "Done": "Done",
+     "Closed": "ClosedIssue",
+  };
+  
 
   return (
     <Card className="mb-3 h-100 dashboardCard">
       <Card.Header>{headerTitle}</Card.Header>
       <Card.Body>
-        {filteredBugs.map((bug, index) => ( 
-          <div
-            key={index}
-            className="bug-item"
-            onClick={() => handleShowModal(bug.id)}
-          >
-            <Card
+        {bugs
+           .filter((bug) => bug.status === statusMap[headerTitle])
+          .map((bug, index) => (
+            <div
               key={index}
-              className="mb-2 floating-card"
-              style={{ cursor: "pointer" }}
+              className="bug-item"
+              onClick={() => handleShowModal(bug.id)}
             >
-              <Card.Body>
-                <Card.Title>{bug.title}</Card.Title>
-                <Card.Text>Priority: {bug.priority}</Card.Text>
-                {(bug.status === "Verification" ||
-                  bug.status === "Verification Done" ||
-                  bug.status === "Done") && (
-                  <Card.Text>
-                    Resolution: {bug.resolution || "Not Set"}
-                  </Card.Text>
-                )}
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    moveBugToNextStatus(bug);
-                  }}
-                  className="btn-smaller-refined"
-                >
-                  Move to {nextStatus}
-                </Button>{" "}
-              </Card.Body>
-            </Card>
-          </div>
-        ))}
+              <Card
+                key={index}
+                className="mb-2 floating-card"
+                style={{ cursor: "pointer" }}
+              >
+                <Card.Body>
+                  <Card.Title>{bug.title}</Card.Title>
+                  <Card.Text>Priority: {bug.priority}</Card.Text>
+                  {(bug.status === "Verification" ||
+                    bug.status === "Verification Done" ||
+                    bug.status === "Done") && (
+                    <Card.Text>
+                      Resolution: {bug.resolution || "Not Set"}
+                    </Card.Text>
+                  )}
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (bug.status !== statusMap[nextStatus]) {
+                        moveBugToNextStatus(bug);
+                      }
+                    }}
+                    className="btn-smaller-refined"
+                  >
+                    Move to {nextStatus}
+                  </Button>
+                </Card.Body>
+              </Card>
+            </div>
+          ))}
       </Card.Body>
       <Modal
         show={showModal}
@@ -186,11 +200,10 @@ const Dashboard = ({ headerTitle, bugs = [], nextStatus }) => {
             <Form.Group className="mb-3">
               <Form.Label>Reporter</Form.Label>
               <Form.Control
-                type="text"
-                value={reporter}
-                onChange={(e) => setReporter(e.target.value)}
-                required
-                className="w-100"
+                  type="text"
+                  value={reporter}
+                  readOnly 
+                  className="w-100"
               />
             </Form.Group>
             <Form.Group className="mb-3">
