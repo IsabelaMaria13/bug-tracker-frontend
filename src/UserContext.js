@@ -97,7 +97,7 @@ export const UserProvider = ({ children }) => {
       }
   
       const bugsForProject = await response.json();
-      setBugs([...bugsForProject]);
+      setBugs([... bugsForProject])
     } catch (error) {
       console.error("Error fetching bugs for project:", error);
       setBugs([]);
@@ -112,7 +112,7 @@ export const UserProvider = ({ children }) => {
           <Modal.Title>Warning!</Modal.Title>
         </Modal.Header>
         <Modal.Body>In order to see bugs and details about this project, you have to enroll.
-          To enroll, please click on the "Enroll" button in the right part of the toolbar.
+          To enroll, please click on the "Enroll" button in the right part of the toolbar. Otherwise, you can select another project from the dropwdown.
         </Modal.Body>
         <Modal.Footer>
           <Button variant="primary" onClick={handleCloseLogoutModal}>

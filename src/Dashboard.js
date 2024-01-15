@@ -31,11 +31,9 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
 
   useEffect(() => {
     if (bugIdToUpdate !== null) {
-      // Găsește bug-ul cu id-ul specificat
       const bugToUpdate = bugs.find((bug) => bug.id === bugIdToUpdate);
 
      
-      // Actualizează starea locală cu valorile bug-ului
       if (bugToUpdate) {
         setBugTitle(bugToUpdate.title);
         setPriority(bugToUpdate.priority);
@@ -71,7 +69,6 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
   const handleUpdateBug = (e) => {
     e.preventDefault();
     if (bugIdToUpdate !== null) {
-      // Actualizează bug-ul folosind funcția din context
       updateBug(bugIdToUpdate, {
         title: bugTitle,
         priority: priority,
@@ -86,7 +83,6 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
       });
     }
     setShowModal(false);
-    // Resetează valorile la închiderea modalului
     setBugTitle("");
     setReporter("");
     setAssignTo("");
@@ -100,14 +96,13 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
 
   const moveBugToNextStatus = (bug) => {
     const mappedNextStatus = statusMap[nextStatus];
-    if (bug.status === statusMap['In Progress'] && mappedNextStatus === 'Verification') {
-
+  
+    if (bug.bugStatus === statusMap['InProgress'] && mappedNextStatus === 'Verification') {
       if (!bugsShownModal.has(bug.id)) {
         setBugsShownModal((prevSet) => new Set(prevSet).add(bug.id));
         handleShowModal(bug.id);
       }
     } else {
-
       updateBugStatus(bug.id, mappedNextStatus);
     }
   };
@@ -120,15 +115,13 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
     "Done": "Done",
      "Closed": "ClosedIssue",
   };
-  
 
   return (
     <Card className="mb-3 h-100 dashboardCard">
       <Card.Header>{headerTitle}</Card.Header>
       <Card.Body>
         {bugs
-           .filter((bug) => bug.status === statusMap[headerTitle])
-          .map((bug, index) => (
+           .filter((bug) => bug.bugStatus === statusMap[headerTitle]).map((bug, index) => (
             <div
               key={index}
               className="bug-item"
@@ -142,9 +135,10 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
                 <Card.Body>
                   <Card.Title>{bug.title}</Card.Title>
                   <Card.Text>Priority: {bug.priority}</Card.Text>
-                  {(bug.status === "Verification" ||
-                    bug.status === "Verification Done" ||
-                    bug.status === "Done") && (
+                  <Card.Text>Status: {bug.bugStatus}</Card.Text>
+                  {(bug.bugStatus === "Verification" ||
+                    bug.bugStatus === "VerificationDone" ||
+                    bug.bugStatus === "Done") && (
                     <Card.Text>
                       Resolution: {bug.resolution || "Not Set"}
                     </Card.Text>
@@ -152,7 +146,7 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
                   <Button
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (bug.status !== statusMap[nextStatus]) {
+                      if (bug.bugStatus !== statusMap[nextStatus]) {
                         moveBugToNextStatus(bug);
                       }
                     }}
@@ -160,14 +154,12 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
                   >
                     Move to {nextStatus}
                   </Button>
-                  {headerTitle === "TO DO" && (
+                  {headerTitle === "To Do" && (
                     <Button id="assign-button"
                       className="btn-smaller-refined"
                       onClick={(e) => {
               
-                      }}
-
-                    >
+                      }}>
                       Assign to me
                     </Button>
                   )}

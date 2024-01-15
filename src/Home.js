@@ -12,7 +12,7 @@ import "./Home.css";
 import { getProfilUser } from "./auth.service";
 
 function Home() {
-  const { bugs ,setBugs, setSelectedProjectId, selectedProjectId  } = useUserContext();
+  const { setBugs, setSelectedProjectId, selectedProjectId  } = useUserContext();
   const [userProfile, setUserProfile] = useState(null);
   const { projects } = useUserContext();
   
@@ -44,36 +44,31 @@ function Home() {
             )}
             <Col className="mb-3">
               <Dashboard 
-              headerTitle="TO DO"
-              bugs={bugs.filter((bug) => bug.status === 'TO DO')} 
-              nextStatus="In progress"
+              headerTitle="To Do"
+              nextStatus="In Progress"
               />
             </Col>
             <Col className="mb-3">
               <Dashboard
-              headerTitle="In progress"
-              bugs={bugs.filter((bug) => bug.status === "In progress")}
+              headerTitle="In Progress"
               nextStatus="Verification"
               />
             </Col>
             <Col className="mb-3">
               <Dashboard
               headerTitle="Verification"
-              bugs={bugs.filter((bug) => bug.status === "Verification")}
               nextStatus="Verification Done"
               />
             </Col>
             <Col className="mb-3">
               <Dashboard
                 headerTitle="Verification Done"
-                bugs={bugs.filter((bug) => bug.status === "Verification Done")}
                 nextStatus="Done"
               />
             </Col>
             <Col className="mb-3">
               <Dashboard
                 headerTitle="Done"
-                bugs={bugs.filter((bug) => bug.status === "Done")}
                 nextStatus="Closed Issue"
               />
             </Col>
