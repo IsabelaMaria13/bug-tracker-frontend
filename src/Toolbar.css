@@ -49,6 +49,10 @@
     opacity: 0.8;
   }
 
+  .dropdown-options {
+    width: 40vw;
+  }
+
   .dropdownOptions{
     width: 20vw;
     font-family: 'Courier New', Courier, monospace;

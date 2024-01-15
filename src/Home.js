@@ -5,7 +5,6 @@ import {
   Col
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useLocation } from "react-router-dom";
 import Toolbar from "./Toolbar";
 import Dashboard from "./Dashboard";
 import { useUserContext } from "./UserContext";
@@ -13,21 +12,17 @@ import "./Home.css";
 import { getProfilUser } from "./auth.service";
 
 function Home() {
-  const location = useLocation();
-  const { bugs, setBugs, setSelectedProjectId  } = useUserContext();
+  const { bugs ,setBugs, setSelectedProjectId, selectedProjectId  } = useUserContext();
   const [userProfile, setUserProfile] = useState(null);
-
+  const { projects } = useUserContext();
+  
   useEffect(() => {
-
-    setSelectedProjectId(null);
-
     const fetchUserProfile = async () => {
       try {
         const token = localStorage.getItem('token'); 
         const userProfileData = await getProfilUser(token);
         setUserProfile(userProfileData);
         
-        // setBugs(userProfile.projects);
       } catch (error) {
         console.error('Error fetching user profile:', error);
       }
@@ -42,10 +37,15 @@ function Home() {
       <div className="background-site">
         <Container>
           <Row className="justify-content-center">
+            {selectedProjectId && projects.length > 0 && (
+              <h2 className='project-title custom-style'>
+                {projects.find(project => project.id === selectedProjectId)?.projectName}
+              </h2>
+            )}
             <Col className="mb-3">
               <Dashboard 
               headerTitle="TO DO"
-              bugs={bugs.filter(bug => bug.status === 'TO DO')} 
+              bugs={bugs.filter((bug) => bug.status === 'TO DO')} 
               nextStatus="In progress"
               />
             </Col>

@@ -115,9 +115,7 @@ function Authentication() {
                       onChange={(e) => setPasswordLogin(e.target.value)}
                     />
                   </Form.Group>
-                  <Form.Group className="mb-4" controlId="loginRememberMe">
-                    <Form.Check type="checkbox" label="Remember me" />
-                  </Form.Group>
+        
                   <Button variant="dark" type="submit">
                     Go
                   </Button>

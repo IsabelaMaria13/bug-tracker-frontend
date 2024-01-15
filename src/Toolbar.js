@@ -11,7 +11,7 @@ import Enroll from "./Enroll";
 const API_URL = "http://localhost:3001/api";
 
 const Toolbar = ({ userProfile }) => {
-  const { bugs, addBug, selectedProjectId, setSelectedProjectId, fetchBugsForProject } = useUserContext();
+  const { addBug, selectedProjectId, setSelectedProjectId, fetchBugsForProject, updateProjects } = useUserContext();
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState("Priority");
   const [bugTitle, setBugTitle] = useState("");
@@ -29,7 +29,6 @@ const Toolbar = ({ userProfile }) => {
 
   const handleProjectSelect = (projectId) => {
     setSelectedProjectId(projectId); 
-    console.log(projectId);
     fetchBugsForProject(projectId);
   };
 
@@ -55,6 +54,8 @@ const Toolbar = ({ userProfile }) => {
       setLink("");
       setSelectedItem("Priority");
       setAdditionalInfo("");
+      
+      fetchBugsForProject(selectedProjectId);
     } catch (error) {
       console.error("Error adding bug:", error);
     }
@@ -91,11 +92,13 @@ const Toolbar = ({ userProfile }) => {
       try {
         const projectsData = await fetchAllProjects();
         setProjects(projectsData);
+        updateProjects(projectsData);
 
         if (!selectedProjectId && projectsData.length > 0) {
           const projectId = projectsData[0].id;
           setSelectedProjectId(projectId);
         }
+
       } catch (error) {
         console.error("Error fetching projects:", error);
       }
@@ -115,29 +118,27 @@ const Toolbar = ({ userProfile }) => {
       {projects.length > 0 && (
         <DropdownButton id="dropdown-bugs" title="Choose a Project">
           {projects.map((project) => (
-            <Dropdown.Item
+            <Dropdown.Item id="dropdown-option"
             key={project.id}
             eventKey={project.id}
+            onClick={() => handleProjectSelect(project.id)}
             >
               {project.projectName}
-              <Button onClick={() => handleProjectSelect(project.id)}>Select</Button>
             </Dropdown.Item>
           ))}
         </DropdownButton>
       )}
-      {userProfile && userProfile.role === "MP" && (<ProjectComponent />)}
-     {userProfile && userProfile.role === "TST" && (
-      <>
-        <Button
-          variant="outline-primary"
-          className="add-bug-btn"
-          onClick={handleShowModal}
-        >
-          Add Bug
-        </Button>
-        <Enroll selectedProjectId={selectedProjectId} />
-      </>
-    )}
+      {userProfile && userProfile.role=== "MP" && (<ProjectComponent />)}
+      {userProfile && userProfile.role === "TST" && (
+          <Button
+            variant="outline-primary"
+            className="add-bug-btn"
+            onClick={handleShowModal}
+          >
+            Add Bug
+          </Button>
+      )}
+      <Enroll userProfile = {userProfile} selectedProjectId={selectedProjectId} />
 
       <span className="user-info">
         {userProfile && userProfile.email}

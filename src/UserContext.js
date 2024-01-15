@@ -1,4 +1,5 @@
 import React, { createContext, useState } from "react";
+import {Modal, Button} from "react-bootstrap"
 
 const UserContext = createContext();
 
@@ -7,6 +8,21 @@ const API_URL = "http://localhost:3001/api";
 export const UserProvider = ({ children }) => {
   const [bugs, setBugs] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
+  const [projects, setProjects] = useState([]);
+
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const handleShowLogoutModal = () => setShowLogoutModal(true);
+  const handleCloseLogoutModal = () => setShowLogoutModal(false);
+
+  // const handleLogout = () => {
+  //   logoutUser();
+  //   navigate("/");
+  //   handleCloseLogoutModal();
+  // };
+
+  const updateProjects = (newProjects) => {
+    setProjects(newProjects);
+  };
 
   const addBug = async (newBug) => {
     const token = localStorage.getItem("token");
@@ -44,6 +60,7 @@ export const UserProvider = ({ children }) => {
       )
     );
   };
+
   const updateBugStatus = (bugId, newStatus) => {
     setBugs((currentBugs) => {
       return currentBugs.map((bug) => {
@@ -55,6 +72,12 @@ export const UserProvider = ({ children }) => {
     });
   };
 
+  const assignBug = (bugId, newStatus) => {
+    setBugs((currentBugs) => {
+      
+    })
+  }
+
   const fetchBugsForProject = async (projectId) => {
     const token = localStorage.getItem("token");
     try {
@@ -63,19 +86,40 @@ export const UserProvider = ({ children }) => {
           Authorization: `Bearer ${token}`,
         },
       });
+  
       if (!response.ok) {
-        throw new Error("Failed to fetch bugs for project");
+        if (response.status === 403) {
+          // Show the modal here
+          handleShowLogoutModal();
+        } else {
+          throw new Error("Failed to fetch bugs for project");
+        }
       }
+  
       const bugsForProject = await response.json();
       setBugs([...bugsForProject]);
     } catch (error) {
       console.error("Error fetching bugs for project:", error);
+      setBugs([]);
     }
   };
   
   return (
-    <UserContext.Provider value={{ bugs ,fetchBugsForProject,  addBug, updateBug, updateBugStatus, selectedProjectId, setSelectedProjectId }}>
+    <UserContext.Provider value={{ bugs ,fetchBugsForProject,  addBug, updateBug, updateBugStatus, selectedProjectId, setSelectedProjectId, projects, updateProjects }}>
       {children}
+      <Modal show={showLogoutModal} onHide={handleCloseLogoutModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Warning!</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>In order to see bugs and details about this project, you have to enroll.
+          To enroll, please click on the "Enroll" button in the right part of the toolbar.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={handleCloseLogoutModal}>
+            Exit
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </UserContext.Provider>
   );
 };

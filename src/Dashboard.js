@@ -160,6 +160,17 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
                   >
                     Move to {nextStatus}
                   </Button>
+                  {headerTitle === "TO DO" && (
+                    <Button id="assign-button"
+                      className="btn-smaller-refined"
+                      onClick={(e) => {
+              
+                      }}
+
+                    >
+                      Assign to me
+                    </Button>
+                  )}
                 </Card.Body>
               </Card>
             </div>

@@ -31,6 +31,7 @@
   border: 1px solid #ddd; /* Subtle border */
   border-radius: 15px; /* More rounded edges */
   transition: all 0.3s ease; /* Smooth transition for hover effects */
+  
 }
 
 .btn-transparent-rounded:hover {
