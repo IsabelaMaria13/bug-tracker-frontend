@@ -9,16 +9,16 @@ export const UserProvider = ({ children }) => {
   const [bugs, setBugs] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [projects, setProjects] = useState([]);
+  const [users, setUsers] = useState([]);
+
+  const [updateTrigger, setUpdateTrigger] = useState(false);
+  const triggerUpdate = () => {
+    setUpdateTrigger((prev) => !prev);
+  };
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const handleShowLogoutModal = () => setShowLogoutModal(true);
   const handleCloseLogoutModal = () => setShowLogoutModal(false);
-
-  // const handleLogout = () => {
-  //   logoutUser();
-  //   navigate("/");
-  //   handleCloseLogoutModal();
-  // };
 
   const updateProjects = (newProjects) => {
     setProjects(newProjects);
@@ -53,12 +53,35 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const updateBug = (bugId, updatedDetails) => {
-    setBugs((currentBugs) =>
-      currentBugs.map((bug) =>
-        bug.id === bugId ? { ...bug, ...updatedDetails } : bug
-      )
-    );
+  const updateBug = async (bugId, updatedDetails) => {
+    try {
+      const token = localStorage.getItem('token');
+  
+      const response = await fetch(`${API_URL}/bugs/${bugId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedDetails),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to update bug!');
+      }
+  
+      const updatedBug = await response.json();
+  
+      setBugs((currentBugs) =>
+        currentBugs.map((bug) =>
+          bug.id === bugId ? { ...bug, ...updatedBug } : bug
+        )
+      );
+  
+      console.log('Bug updated successfully:', updatedBug);
+    } catch (error) {
+      console.error('Error updating bug:', error);
+    }
   };
 
   const updateBugStatus = (bugId, newStatus) => {
@@ -72,11 +95,7 @@ export const UserProvider = ({ children }) => {
     });
   };
 
-  const assignBug = (bugId, newStatus) => {
-    setBugs((currentBugs) => {
-      
-    })
-  }
+
 
   const fetchBugsForProject = async (projectId) => {
     const token = localStorage.getItem("token");
@@ -103,9 +122,29 @@ export const UserProvider = ({ children }) => {
       setBugs([]);
     }
   };
+
+  const getUsers = async () => {
+    try {
+      const token = localStorage.getItem('token');
+  
+      const response = await fetch(`${API_URL}/users`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get all users!");
+      }
+
+      const data = await response.json();
+      const users = data;
+      setUsers(users);
+    } catch (error) {
+      console.error("Error getting all users:", error);
+    }
+  };
   
   return (
-    <UserContext.Provider value={{ bugs ,fetchBugsForProject,  addBug, updateBug, updateBugStatus, selectedProjectId, setSelectedProjectId, projects, updateProjects }}>
+    <UserContext.Provider value={{ triggerUpdate, bugs ,fetchBugsForProject,  addBug, updateBug, updateBugStatus, selectedProjectId, setSelectedProjectId, projects, updateProjects, getUsers, users }}>
       {children}
       <Modal show={showLogoutModal} onHide={handleCloseLogoutModal} centered>
         <Modal.Header closeButton>

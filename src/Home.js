@@ -12,9 +12,8 @@ import "./Home.css";
 import { getProfilUser } from "./auth.service";
 
 function Home() {
-  const { setBugs, setSelectedProjectId, selectedProjectId  } = useUserContext();
+  const { triggerUpdate, setBugs, setSelectedProjectId, selectedProjectId, projects  } = useUserContext();
   const [userProfile, setUserProfile] = useState(null);
-  const { projects } = useUserContext();
   
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -30,6 +29,11 @@ function Home() {
 
     fetchUserProfile();
   }, [setBugs, setSelectedProjectId]);
+
+  useEffect(() => {
+    // Simulate the selection of the same project
+    triggerUpdate();
+  }, []);
 
   return (
     <div>

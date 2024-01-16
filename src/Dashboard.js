@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Card,
   Modal,
@@ -9,13 +9,13 @@ import {
 } from "react-bootstrap";
 import "./Dashboard.css";
 import { useUserContext } from "./UserContext";
+import { getProfilUser } from "./auth.service";
 
 const API_URL = "http://localhost:3001/api";
 
 const Dashboard = ({ headerTitle, nextStatus }) => {
   const [showModal, setShowModal] = useState(false);
-  const { updateBug, updateBugStatus, selectedProjectId, bugs } =
-    useUserContext();
+  const { triggerUpdate, updateBug, updateBugStatus, selectedProjectId, bugs, getUsers, users, fetchBugsForProject } = useUserContext();
   const [priority, setPriority] = useState("Priority");
   const [bugTitle, setBugTitle] = useState("");
   const [reporter, setReporter] = useState("");
@@ -29,11 +29,17 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
   const [bugIdToUpdate, setBugIdToUpdate] = useState(null);
   const [bugsShownModal, setBugsShownModal] = useState(new Set());
 
+  const memoizedGetUsers = useCallback(() => {
+    getUsers().catch((error) => {
+      console.error("Error getting users:", error);
+    });
+  }, [getUsers]);
+
   useEffect(() => {
     if (bugIdToUpdate !== null) {
       const bugToUpdate = bugs.find((bug) => bug.id === bugIdToUpdate);
 
-     
+
       if (bugToUpdate) {
         setBugTitle(bugToUpdate.title);
         setPriority(bugToUpdate.priority);
@@ -44,9 +50,42 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
         setResolution(bugToUpdate.resolution);
         setGitCommitLink(bugToUpdate.gitCommitLink || "");
         setAdditionalInfo(bugToUpdate.additionalInfo || "");
+
+        const reporterUser = users.find((user) => user.id === bugToUpdate.reporterId);
+        if (reporterUser) {
+          setReporter(reporterUser.email);
+        } else {
+          memoizedGetUsers();
+        }
+
       }
     }
-  }, [bugIdToUpdate, bugs, selectedProjectId]);
+  }, [bugIdToUpdate, bugs, selectedProjectId, users, memoizedGetUsers]);
+
+  const assignToMe = async (e, bugId) => {
+    e.stopPropagation();  // Stop event propagation to parent div
+    try {
+      const token = localStorage.getItem("token");
+      const userProfile = await getProfilUser(token);
+
+      console.log(userProfile.id);
+      console.log(bugId)
+
+      if (userProfile && userProfile.id && bugId) {
+        updateBug(bugId, {
+          assignedToId: userProfile.id,
+          status: "InProgress",
+        });
+        triggerUpdate();
+      }
+
+
+
+
+    } catch (error) {
+      console.error("Error assigning bug to me:", error);
+    }
+  };
 
   const handleShowModal = (bugId) => {
     setBugIdToUpdate(bugId);
@@ -96,7 +135,7 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
 
   const moveBugToNextStatus = (bug) => {
     const mappedNextStatus = statusMap[nextStatus];
-  
+
     if (bug.bugStatus === statusMap['InProgress'] && mappedNextStatus === 'Verification') {
       if (!bugsShownModal.has(bug.id)) {
         setBugsShownModal((prevSet) => new Set(prevSet).add(bug.id));
@@ -113,7 +152,7 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
     "Verification": "Verification",
     "Verification Done": "VerificationDone",
     "Done": "Done",
-     "Closed": "ClosedIssue",
+    "Closed": "ClosedIssue",
   };
 
   return (
@@ -121,7 +160,7 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
       <Card.Header>{headerTitle}</Card.Header>
       <Card.Body>
         {bugs
-           .filter((bug) => bug.bugStatus === statusMap[headerTitle]).map((bug, index) => (
+          .filter((bug) => bug.bugStatus === statusMap[headerTitle]).map((bug, index) => (
             <div
               key={index}
               className="bug-item"
@@ -135,31 +174,33 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
                 <Card.Body>
                   <Card.Title>{bug.title}</Card.Title>
                   <Card.Text>Priority: {bug.priority}</Card.Text>
-                  <Card.Text>Status: {bug.bugStatus}</Card.Text>
                   {(bug.bugStatus === "Verification" ||
                     bug.bugStatus === "VerificationDone" ||
                     bug.bugStatus === "Done") && (
-                    <Card.Text>
-                      Resolution: {bug.resolution || "Not Set"}
-                    </Card.Text>
-                  )}
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (bug.bugStatus !== statusMap[nextStatus]) {
-                        moveBugToNextStatus(bug);
-                      }
-                    }}
-                    className="btn-smaller-refined"
-                  >
-                    Move to {nextStatus}
-                  </Button>
-                  {headerTitle === "To Do" && (
-                    <Button id="assign-button"
-                      className="btn-smaller-refined"
+                      <Card.Text>
+                        Resolution: {bug.resolution || "Not Set"}
+                      </Card.Text>
+                    )
+                  }
+                  {headerTitle !== "To Do" && (
+                    <Button
                       onClick={(e) => {
-              
-                      }}>
+                        e.stopPropagation();
+                        if (bug.bugStatus !== statusMap[nextStatus]) {
+                          moveBugToNextStatus(bug);
+                        }
+                      }}
+                      className="btn-smaller-refined"
+                    >
+                      Move to {nextStatus}
+                    </Button>
+                  )}
+                  {headerTitle === "To Do" && (
+                    <Button
+                      id="assign-button"
+                      className="btn-smaller-refined"
+                      onClick={(e) => assignToMe(e, bug.id)}
+                    >
                       Assign to me
                     </Button>
                   )}
@@ -203,10 +244,10 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
             <Form.Group className="mb-3">
               <Form.Label>Reporter</Form.Label>
               <Form.Control
-                  type="text"
-                  value={reporter}
-                  readOnly 
-                  className="w-100"
+                type="text"
+                value={reporter}
+                readOnly
+                className="w-100"
               />
             </Form.Group>
             <Form.Group className="mb-3">
