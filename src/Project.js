@@ -93,10 +93,9 @@ const ProjectComponent = () => {
 
       const newProject = newProjectsArray.find((p) => p.repositoryName === projectData.repositoryName && p.projectName === projectData.projectName)
 
-      setSelectedProjectId(newProject.id);
+      setSelectedProjectId(null);
       setRepositoryName("");
       setProjectName("");
-      fetchBugsForProject(newProject.id);
       handleCloseModal();
     } catch (error) {
       console.error("Error during project creation:", error);

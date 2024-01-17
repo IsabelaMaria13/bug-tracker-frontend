@@ -10,6 +10,7 @@ const Enroll = ({ userProfile }) => {
   const [showEnrollModal, setShowEnrollModal] = useState(false);
   const handleShowEnrollModal = () => setShowEnrollModal(true);
   const handleCloseEnrollModal = () => setShowEnrollModal(false);
+  
 
   useEffect(() => {
     const checkEnrollmentStatus = async () => {
@@ -21,13 +22,10 @@ const Enroll = ({ userProfile }) => {
 
       setIsEnrolled(isUserEnrolled);
 
-      if (isUserEnrolled) {
-        // Only fetch bugs if the user is enrolled in the selected project
-        fetchBugsForProject(selectedProjectId);
+      if (!isUserEnrolled) {
+        setShowEnrollModal(true);
       } else {
-        // If the user is not enrolled, clear bugs and show enrollment warning
-        setBugs([]);
-        handleShowEnrollModal();
+        fetchBugsForProject(selectedProjectId);
       }
     };
 
