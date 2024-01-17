@@ -42,9 +42,7 @@ function Authentication() {
           password: password,
           role: role,
         });
-        // Setează flag-ul de succes la true
         setRegistrationSuccess(true);
-
       } catch (error) {
         setInvalidData(error);
         handleShowModal();
@@ -54,7 +52,6 @@ function Authentication() {
 
   const handleLoginAfterRegistration = async () => {
     try {
-      // Loghează utilizatorul cu datele de înregistrare
       const response = await loginUser(registerEmail, password);
       localStorage.setItem("token", response.accessToken);
       navigate('/home', { state: { email: registerEmail } });
@@ -66,11 +63,9 @@ function Authentication() {
   };
 
   useEffect(() => {
-    // Apelează funcția de login după înregistrare doar dacă înregistrarea a avut succes
     if (registrationSuccess) {
       handleLoginAfterRegistration();
     }
-    // eslint-disable-next-line
   }, [registrationSuccess]);
 
   const handleLoginSubmit = async (e) => {

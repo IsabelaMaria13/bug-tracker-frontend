@@ -6,3 +6,12 @@
     margin-top: 20px;
     margin-bottom: 0px;
   }
+
+.selectProjectText{
+  color: white;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-style: italic;
+  margin-top: 20px;
+  margin-bottom: 0px;
+}

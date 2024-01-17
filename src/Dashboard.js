@@ -11,15 +11,14 @@ import "./Dashboard.css";
 import { useUserContext } from "./UserContext";
 import { getProfilUser } from "./auth.service";
 
-const API_URL = "http://localhost:3001/api";
-
-const Dashboard = ({ headerTitle, nextStatus }) => {
+const Dashboard = ({ headerTitle, nextStatus, userProfile }) => {
   const [showModal, setShowModal] = useState(false);
-  const { triggerUpdate, updateBug, updateBugStatus, selectedProjectId, bugs, getUsers, users, fetchBugsForProject } = useUserContext();
+  const { updateBug, selectedProjectId, bugs, getUsers, users, setRerenderBugs, rerenderBugs, fetchBugsForProject, setBugs } = useUserContext();
   const [priority, setPriority] = useState("Priority");
   const [bugTitle, setBugTitle] = useState("");
   const [reporter, setReporter] = useState("");
   const [assignTo, setAssignTo] = useState("");
+  const [assignToId, setAssignToId] = useState("");
   const [link, setLink] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
   const [testing, setTesting] = useState("");
@@ -36,31 +35,50 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
   }, [getUsers]);
 
   useEffect(() => {
-    if (bugIdToUpdate !== null) {
-      const bugToUpdate = bugs.find((bug) => bug.id === bugIdToUpdate);
+    if (bugs.length) {
+      console.log("AAAAHHHHH")
+      if (selectedProjectId !== null) {
+        if (bugIdToUpdate !== null) {
+          const bugToUpdate = bugs.find((bug) => bug.id === bugIdToUpdate);
 
+          if (bugToUpdate) {
+            setBugTitle(bugToUpdate.title);
+            setPriority(bugToUpdate.priority);
+            setAssignTo(bugToUpdate.assignedToId);
+            setLink(bugToUpdate.issueLink);
+            setTesting(bugToUpdate.testSteps || "");
+            setSolution(bugToUpdate.solution || "");
+            setResolution(bugToUpdate.resolution || "");
+            setGitCommitLink(bugToUpdate.gitCommitLink || "");
+            setAdditionalInfo(bugToUpdate.details || "");
 
-      if (bugToUpdate) {
-        setBugTitle(bugToUpdate.title);
-        setPriority(bugToUpdate.priority);
-        setAssignTo(bugToUpdate.assignTo);
-        setLink(bugToUpdate.link);
-        setTesting(bugToUpdate.testing || "");
-        setSolution(bugToUpdate.solution || "");
-        setResolution(bugToUpdate.resolution);
-        setGitCommitLink(bugToUpdate.gitCommitLink || "");
-        setAdditionalInfo(bugToUpdate.additionalInfo || "");
+            const reporterUser = users.find((user) => user.id === bugToUpdate.reporterId);
+            if (headerTitle !== "To Do") {
+              const assignedUser = users.find((user) => user.id === bugToUpdate.assignedToId);
+              if (assignedUser) {
+                setAssignTo(assignedUser.email);
+                setAssignToId(assignedUser.id);
+              } else {
+                memoizedGetUsers();
+              }
+            }
 
-        const reporterUser = users.find((user) => user.id === bugToUpdate.reporterId);
-        if (reporterUser) {
-          setReporter(reporterUser.email);
-        } else {
-          memoizedGetUsers();
+            if (reporterUser) {
+              setReporter(reporterUser.email);
+            } else {
+              memoizedGetUsers();
+            }
+          }
         }
-
-      }
+      } else
+        setBugs(null)
     }
-  }, [bugIdToUpdate, bugs, selectedProjectId, users, memoizedGetUsers]);
+
+  }, [bugIdToUpdate, bugs, memoizedGetUsers, rerenderBugs]);
+
+  useEffect(() => {
+    fetchBugsForProject(selectedProjectId)
+  }, [rerenderBugs]);
 
   const assignToMe = async (e, bugId) => {
     e.stopPropagation();  // Stop event propagation to parent div
@@ -76,13 +94,12 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
           assignedToId: userProfile.id,
           status: "InProgress",
         });
-        triggerUpdate();
+        // alert("Bug has been assigned to you! Please re-select the project from the dropdown to see the moved bug!")
+        setRerenderBugs(rerenderBugs + 1);
       }
 
-
-
-
     } catch (error) {
+      alert("There has been an error assigning the bug.")
       console.error("Error assigning bug to me:", error);
     }
   };
@@ -111,16 +128,18 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
       updateBug(bugIdToUpdate, {
         title: bugTitle,
         priority: priority,
-        reporter: reporter,
-        assignTo: assignTo,
-        link: link,
-        testing: testing,
+        assignedToId: assignToId,
+        reporterId: reporter,
+        issueLink: link,
+        testSteps: testing,
         solution: solution,
         resolution: resolution,
-        gitCommitLink: gitCommitLink,
-        additionalInfo: additionalInfo,
+        details: additionalInfo,
       });
     }
+
+    setRerenderBugs(rerenderBugs + 1);
+
     setShowModal(false);
     setBugTitle("");
     setReporter("");
@@ -132,17 +151,24 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
     setAdditionalInfo("");
   };
 
-
   const moveBugToNextStatus = (bug) => {
     const mappedNextStatus = statusMap[nextStatus];
 
-    if (bug.bugStatus === statusMap['InProgress'] && mappedNextStatus === 'Verification') {
-      if (!bugsShownModal.has(bug.id)) {
-        setBugsShownModal((prevSet) => new Set(prevSet).add(bug.id));
+    if (bug.bugStatus === statusMap['In Progress'] && mappedNextStatus === 'Verification') {
+      if ((bug.testSteps === "" && bug.solution === "" && bug.resolution === "") ||
+        ((bug.testSteps === null && bug.solution === null && bug.resolution === null))) {
         handleShowModal(bug.id);
       }
+      else {
+        updateBug(bug.id, { status: mappedNextStatus });
+        alert("Bug has been moved! Please re-select the project!")
+        setRerenderBugs(rerenderBugs + 1);
+
+      }
     } else {
-      updateBugStatus(bug.id, mappedNextStatus);
+      updateBug(bug.id, { status: mappedNextStatus });
+      alert("Bug has been moved! Please re-select the project!")
+      setRerenderBugs(rerenderBugs + 1);
     }
   };
 
@@ -152,7 +178,7 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
     "Verification": "Verification",
     "Verification Done": "VerificationDone",
     "Done": "Done",
-    "Closed": "ClosedIssue",
+    "Closed Issue": "ClosedIssue",
   };
 
   return (
@@ -182,7 +208,7 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
                       </Card.Text>
                     )
                   }
-                  {headerTitle !== "To Do" && (
+                  {headerTitle !== "To Do" && headerTitle !== "In Progress" && userProfile.role==="MP" && (
                     <Button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -195,7 +221,20 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
                       Move to {nextStatus}
                     </Button>
                   )}
-                  {headerTitle === "To Do" && (
+                  {headerTitle === "In Progress" && userProfile && userProfile.role === "MP" && userProfile.id === bug.assignedToId && (
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (bug.bugStatus !== statusMap[nextStatus]) {
+                          moveBugToNextStatus(bug);
+                        }
+                      }}
+                      className="btn-smaller-refined"
+                    >
+                      Move to {nextStatus}
+                    </Button>
+                  )}
+                  {headerTitle === "To Do" && userProfile && userProfile.role === "MP" && (
                     <Button
                       id="assign-button"
                       className="btn-smaller-refined"
@@ -250,6 +289,7 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
                 className="w-100"
               />
             </Form.Group>
+            {headerTitle !== "To Do" && (
             <Form.Group className="mb-3">
               <Form.Label>Assign To</Form.Label>
               <Form.Control
@@ -257,9 +297,11 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
                 value={assignTo}
                 onChange={(e) => setAssignTo(e.target.value)}
                 required
+                readOnly
                 className="w-100"
               />
             </Form.Group>
+            )}
             <Form.Group className="mb-3">
               <Form.Label>Link Github</Form.Label>
               <Form.Control
@@ -279,61 +321,60 @@ const Dashboard = ({ headerTitle, nextStatus }) => {
               />
             </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Resolution:</Form.Label>
-              <DropdownButton
-                id="dropdown-priority"
-                title={resolution}
-                onSelect={handleSelectedResolution}
-                className="w-100"
-              >
-                <Dropdown.Item eventKey="Done">Done</Dropdown.Item>
-                <Dropdown.Item eventKey="Resolved">Resolved</Dropdown.Item>
-                <Dropdown.Item eventKey="Unresolved">Unresolved</Dropdown.Item>
-                <Dropdown.Item eventKey="Cannot Reproduce">
-                  Cannot Reproduce
-                </Dropdown.Item>
-                <Dropdown.Item eventKey="Incomplete">Incomplete</Dropdown.Item>
-                <Dropdown.Item eventKey="Duplicate">Duplicate</Dropdown.Item>
-              </DropdownButton>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Solution:</Form.Label>
-              <Form.Control
-                as="textarea"
-                value={solution}
-                onChange={(e) => setSolution(e.target.value)}
-                maxLength={500}
-              />
-            </Form.Group>
+            {headerTitle !== "To Do" && (
+              <><Form.Group className="mb-3">
+                <Form.Label>Resolution:</Form.Label>
+                <DropdownButton
+                  id="dropdown-priority"
+                  title={resolution}
+                  onSelect={handleSelectedResolution}
+                  className="w-100"
+                >
+                  <Dropdown.Item eventKey="Done">Done</Dropdown.Item>
+                  <Dropdown.Item eventKey="Resolved">Resolved</Dropdown.Item>
+                  <Dropdown.Item eventKey="Unresolved">Unresolved</Dropdown.Item>
+                  <Dropdown.Item eventKey="CannotReproduce">
+                    Cannot Reproduce
+                  </Dropdown.Item>
+                  <Dropdown.Item eventKey="Incomplete">Incomplete</Dropdown.Item>
+                  <Dropdown.Item eventKey="Duplicate">Duplicate</Dropdown.Item>
+                </DropdownButton>
+              </Form.Group><Form.Group className="mb-3">
+                  <Form.Label>Solution:</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    value={solution}
+                    onChange={(e) => setSolution(e.target.value)}
+                    maxLength={500} />
+                </Form.Group><Form.Group className="mb-3">
+                  <Form.Label>How to test:</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    value={testing}
+                    onChange={(e) => setTesting(e.target.value)}
+                    maxLength={500} />
+                </Form.Group><Form.Group className="mb-3">
+                  <Form.Label>Git Commit Link</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={gitCommitLink}
+                    onChange={(e) => setGitCommitLink(e.target.value)}
+                    required />
+                </Form.Group></>
+            )}
 
-            <Form.Group className="mb-3">
-              <Form.Label>How to test:</Form.Label>
-              <Form.Control
-                as="textarea"
-                value={testing}
-                onChange={(e) => setTesting(e.target.value)}
-                maxLength={500}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Git Commit Link</Form.Label>
-              <Form.Control
-                type="text"
-                value={gitCommitLink}
-                onChange={(e) => setGitCommitLink(e.target.value)}
-                required
-              />
-            </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseModal}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleUpdateBug}>
-            Update Bug
-          </Button>
+          {userProfile && userProfile.role === "MP" && userProfile.id === assignToId && (
+            <Button variant="primary" onClick={handleUpdateBug}>
+              Update Bug
+            </Button>
+          )}
+
         </Modal.Footer>
       </Modal>
     </Card>

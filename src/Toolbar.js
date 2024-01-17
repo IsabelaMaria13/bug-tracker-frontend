@@ -10,8 +10,27 @@ import Enroll from "./Enroll";
 
 const API_URL = "http://localhost:3001/api";
 
+const fetchAllProjects = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/projects`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch projects");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    throw error;
+  }
+};
+
 const Toolbar = ({ userProfile }) => {
-  const { addBug, selectedProjectId, setSelectedProjectId, fetchBugsForProject, updateProjects } = useUserContext();
+  const { addBug, selectedProjectId, setSelectedProjectId, fetchBugsForProject, updateProjects, rerenderToolbar } = useUserContext();
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState("Priority");
   const [bugTitle, setBugTitle] = useState("");
@@ -26,9 +45,23 @@ const Toolbar = ({ userProfile }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const handleShowLogoutModal = () => setShowLogoutModal(true);
   const handleCloseLogoutModal = () => setShowLogoutModal(false);
+  
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const projectsData = await fetchAllProjects();
+        setProjects(projectsData);
+        updateProjects(projectsData);
+
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
+    fetchProjects();
+  }, [selectedProjectId, rerenderToolbar]);
 
   const handleProjectSelect = (projectId) => {
-    setSelectedProjectId(projectId); 
+    setSelectedProjectId(projectId);
     fetchBugsForProject(projectId);
   };
 
@@ -54,7 +87,7 @@ const Toolbar = ({ userProfile }) => {
       setLink("");
       setSelectedItem("Priority");
       setAdditionalInfo("");
-      
+
       fetchBugsForProject(selectedProjectId);
     } catch (error) {
       console.error("Error adding bug:", error);
@@ -63,50 +96,10 @@ const Toolbar = ({ userProfile }) => {
 
   const handleLogout = () => {
     logoutUser();
+    setSelectedProjectId(null);
     navigate("/");
     handleCloseLogoutModal();
   };
-
-  const fetchAllProjects = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${API_URL}/projects`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch projects");
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching projects:", error);
-      throw error;
-    }
-  };
-
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const projectsData = await fetchAllProjects();
-        setProjects(projectsData);
-        updateProjects(projectsData);
-
-        if (!selectedProjectId && projectsData.length > 0) {
-          const projectId = projectsData[0].id;
-          setSelectedProjectId(projectId);
-        }
-
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      }
-    };
-
-    fetchProjects();
-  }, [selectedProjectId]);
-
 
   const handleSelectedPriority = (eventKey) => {
     setSelectedItem(eventKey);
@@ -116,29 +109,33 @@ const Toolbar = ({ userProfile }) => {
     <div className="toolbar">
       <span className="logo">BugMaster</span>
       {projects.length > 0 && (
-        <DropdownButton id="dropdown-bugs" title="Choose a Project">
+        <DropdownButton id="dropdown-bugs" title="Choose a Project" >
           {projects.map((project) => (
             <Dropdown.Item id="dropdown-option"
-            key={project.id}
-            eventKey={project.id}
-            onClick={() => handleProjectSelect(project.id)}
+              key={project.id}
+              eventKey={project.id}
+              onClick={() => handleProjectSelect(project.id)}
             >
               {project.projectName}
             </Dropdown.Item>
           ))}
         </DropdownButton>
       )}
-      {userProfile && userProfile.role=== "MP" && (<ProjectComponent />)}
+      {userProfile && userProfile.role === "MP" && (<ProjectComponent />)}
       {userProfile && userProfile.role === "TST" && (
-          <Button
-            variant="outline-primary"
-            className="add-bug-btn"
-            onClick={handleShowModal}
-          >
-            Add Bug
-          </Button>
+        <Button
+          variant="outline-primary"
+          className="add-bug-btn"
+          onClick={handleShowModal}
+        >
+          Add Bug
+        </Button>
       )}
-      <Enroll userProfile = {userProfile} selectedProjectId={selectedProjectId} />
+
+      {selectedProjectId && (
+        <Enroll userProfile={userProfile} selectedProjectId={selectedProjectId} />
+
+      )}
 
       <span className="user-info">
         {userProfile && userProfile.email}
@@ -221,4 +218,4 @@ const Toolbar = ({ userProfile }) => {
   );
 };
 
-export default Toolbar;
+export { Toolbar, fetchAllProjects };

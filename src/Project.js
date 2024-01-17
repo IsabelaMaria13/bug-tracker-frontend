@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Button, Modal, Form } from "react-bootstrap";
 import { useUserContext } from "./UserContext";
+import { fetchAllProjects } from "./Toolbar";
 
 const API_URL = 'http://localhost:3001/api';
 
 const ProjectComponent = () => {
-  const { setSelectedProjectId} = useUserContext();
+  const { setSelectedProjectId, fetchBugsForProject} = useUserContext();
   const [showModal, setShowModal] = useState(false);
   const [projectName, setProjectName] = useState("");
   const [repositoryName, setRepositoryName] = useState("");
@@ -88,9 +89,14 @@ const ProjectComponent = () => {
         throw new Error("Failed to create project");
       }
 
-      const newProject = await response.json();
-      setProjects([...projects, newProject]); 
+      const newProjectsArray = await fetchAllProjects();
+
+      const newProject = newProjectsArray.find((p) => p.repositoryName === projectData.repositoryName && p.projectName === projectData.projectName)
+
       setSelectedProjectId(newProject.id);
+      setRepositoryName("");
+      setProjectName("");
+      fetchBugsForProject(newProject.id);
       handleCloseModal();
     } catch (error) {
       console.error("Error during project creation:", error);
@@ -115,18 +121,17 @@ const ProjectComponent = () => {
             <Form.Group className="mb-3">
               <Form.Control
                 type="text"
-                placeholder="Repository name"
-                value={repositoryName}
-                onChange={(e) => setRepositoryName(e.target.value)}
-                required
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Control
-                type="text"
                 placeholder="Project name"
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
+                required
+              />
+            </Form.Group><Form.Group className="mb-3">
+              <Form.Control
+                type="text"
+                placeholder="Repository name"
+                value={repositoryName}
+                onChange={(e) => setRepositoryName(e.target.value)}
                 required
               />
             </Form.Group>
